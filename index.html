@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="day">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peachy Tiny Studio — Hand-Sculpted Miniature Dioramas & Glowing Sanctuaries</title>
+  <meta name="description" content="One-of-a-kind miniature clay dioramas with built-in warm LED lights. Hand-sculpted with patience in Vietnam & shipped worldwide via Etsy." />
+
+  <!-- Fonts: Instrument Serif (Editorial Display), Plus Jakarta Sans (Clean UI), DM Mono (Artisan Specs), Great Vibes (Gold Plaque Calligraphy) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Great+Vibes&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <!-- Subtle Firefly / Warm Dust Canvas (Active in Night Glow Mode) -->
+  <canvas id="fireflies-canvas" aria-hidden="true"></canvas>
+
+  <!-- Section 1: Floating Pill Header -->
+  <header class="site-header" id="site-header">
+    <a href="#top" class="brand-mark" aria-label="Peachy Tiny Studio Home">
+      <span class="brand-star" aria-hidden="true">✦</span>
+      <span class="brand-name">Peachy <em class="serif-it">Tiny Studio</em></span>
+    </a>
+
+    <nav class="pill-nav liquid-glass" aria-label="Primary Navigation">
+      <a href="#creations" class="nav-link">Creations</a>
+      <a href="#craft" class="nav-link">The Craft</a>
+      <a href="#custom" class="nav-link">Custom</a>
+      <a href="#story" class="nav-link">Story</a>
+      <span class="nav-divider" aria-hidden="true"></span>
+      <button type="button" class="theme-switch" id="header-theme-toggle" aria-label="Toggle Daylight and Night Glow mode">
+        <span class="switch-icon" id="header-switch-icon">🌙</span>
+        <span class="switch-label" id="header-switch-label">Night Glow</span>
+      </button>
+      <span class="scroll-pct mono" id="scroll-pct" aria-hidden="true">0%</span>
+    </nav>
+
+    <div class="header-actions">
+      <a href="https://www.etsy.com/shop/PeachyByGiang" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+        <span>Visit Etsy</span>
+        <span class="btn-arrow" aria-hidden="true">↗</span>
+      </a>
+      <button type="button" class="mobile-menu-btn liquid-glass" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-drawer liquid-glass" id="mobile-drawer" aria-hidden="true">
+    <a href="#creations" class="drawer-link">Creations</a>
+    <a href="#craft" class="drawer-link">The Craft</a>
+    <a href="#custom" class="drawer-link">Custom Plaque</a>
+    <a href="#waitlist" class="drawer-link">Dragon Drop</a>
+    <a href="#story" class="drawer-link">Meet Giang</a>
+    <button type="button" class="btn btn-glass drawer-theme-btn" id="drawer-theme-toggle">
+      <span>🌙 Switch to Night Glow</span>
+    </button>
+  </div>
+
+  <main id="top">
+    <!-- Section 2: Full-Bleed Interactive Day/Night Hero -->
+    <section class="hero" id="hero">
+      <div class="hero-stage">
+        <div class="hero-media-frame">
+          <img
+            src="./assets/hero-day.webp"
+            alt="Sunlit handmade woodland miniature tea room diorama by Peachy Tiny Studio"
+            class="hero-img hero-img-day"
+            fetchpriority="high"
+          />
+          <img
+            src="./assets/hero-night.webp"
+            alt="Glowing handmade clay heart lantern night scene diorama by Peachy Tiny Studio"
+            class="hero-img hero-img-night"
+          />
+          <div class="hero-scrim" aria-hidden="true"></div>
+          <div class="hero-lantern-aura" aria-hidden="true"></div>
+        </div>
+
+        <div class="hero-content">
+          <div class="hero-eyebrow mono liquid-glass">
+            <span class="pulse-dot" aria-hidden="true"></span>
+            <span>100% HAND-SCULPTED IN VIETNAM &nbsp;·&nbsp; SHIPS WORLDWIDE</span>
+          </div>
+
+          <h1 class="hero-title">
+            When the world feels too loud,<br />
+            step into a tiny <em class="serif-it glow-word">glowing</em> sanctuary.
+          </h1>
+
+          <p class="hero-subtitle">
+            One-of-a-kind miniature clay dioramas with built-in warm lights—shaped millimeter by millimeter for your desk, bookshelf, or bedside.
+          </p>
+
+          <div class="hero-cta-row">
+            <a href="#creations" class="btn btn-primary btn-lg">
+              <span>Explore Available Pieces</span>
+              <span class="btn-arrow" aria-hidden="true">↓</span>
+            </a>
+            <button type="button" class="btn btn-glass btn-lg" id="hero-light-toggle">
+              <span class="light-orb" aria-hidden="true"></span>
+              <span id="hero-light-label">Flip the Lights On</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-bottom-bar">
+          <div class="hero-mode-caption mono" id="hero-mode-caption">
+            VIEWING: SUNLIT WOODLAND TEA ROOM (DAYLIGHT)
+          </div>
+          <div class="scroll-cue mono">
+            <span>SCROLL TO EXPLORE</span>
+            <span class="scroll-line" aria-hidden="true"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Slow Art Manifesto (Scroll-Scrubbed Word Reveal) + Trust Marquee -->
+    <section class="manifesto-section" id="manifesto">
+      <div class="container">
+        <p class="section-kicker mono">01 / THE PHILOSOPHY OF SLOW ART</p>
+        <blockquote class="manifesto-text" id="manifesto-text">
+          Every miniature tile, petal, and whisker is sculpted entirely by hand—never molded, never mass-produced. Flip one tiny switch at midnight, and your desk quietly becomes a fairytale.
+        </blockquote>
+      </div>
+
+      <div class="marquee-wrap" aria-label="Studio Craft Highlights">
+        <div class="marquee-track">
+          <div class="marquee-group mono">
+            <span>✦ 100% HAND-SCULPTED CLAY</span>
+            <span>✦ BUILT-IN WARM LED LIGHTS</span>
+            <span>✦ ONE-OF-A-KIND (1 OF 1)</span>
+            <span>✦ PROTECTIVE WORLDWIDE SHIPPING</span>
+            <span>✦ CUSTOM GOLD NAME PLAQUES</span>
+            <span>✦ MADE WITH LOVE IN VIETNAM</span>
+          </div>
+          <div class="marquee-group mono" aria-hidden="true">
+            <span>✦ 100% HAND-SCULPTED CLAY</span>
+            <span>✦ BUILT-IN WARM LED LIGHTS</span>
+            <span>✦ ONE-OF-A-KIND (1 OF 1)</span>
+            <span>✦ PROTECTIVE WORLDWIDE SHIPPING</span>
+            <span>✦ CUSTOM GOLD NAME PLAQUES</span>
+            <span>✦ MADE WITH LOVE IN VIETNAM</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Interactive Shoppable Diorama Gallery with Hotspot Pins -->
+    <section class="creations-section" id="creations">
+      <div class="container">
+        <div class="section-header-split">
+          <div>
+            <p class="section-kicker mono">02 / AVAILABLE FOR ADOPTION</p>
+            <h2 class="section-title">Inspect every <em class="serif-it">tiny</em> detail.</h2>
+          </div>
+          <div class="piece-tabs liquid-glass" role="tablist" aria-label="Select diorama piece">
+            <button type="button" class="piece-tab is-active" role="tab" aria-selected="true" data-piece="shrine">
+              <span class="mono">01</span> Moonlit Cat Shrine
+            </button>
+            <button type="button" class="piece-tab" role="tab" aria-selected="false" data-piece="cottage">
+              <span class="mono">02</span> Secret Garden Cottage
+            </button>
+          </div>
+        </div>
+
+        <div class="gallery-grid">
+          <!-- Left: Interactive Stage with Hotspot Pins -->
+          <div class="gallery-stage-col">
+            <div class="gallery-stage" id="gallery-stage">
+              <img
+                src="./assets/shrine-main.webp"
+                alt="Moonlit Cat Shrine miniature diorama"
+                class="gallery-main-img"
+                id="gallery-main-img"
+              />
+              <!-- Hotspots injected dynamically by JS -->
+              <div class="hotspots-layer" id="hotspots-layer"></div>
+
+              <!-- Active Hotspot Detail Card -->
+              <div class="hotspot-card liquid-glass" id="hotspot-card" aria-live="polite">
+                <div class="hotspot-card-top">
+                  <span class="mono hotspot-tag" id="hotspot-tag">DETAIL 01</span>
+                  <button type="button" class="hotspot-close" id="hotspot-close" aria-label="Close detail">×</button>
+                </div>
+                <h4 class="hotspot-title" id="hotspot-title">Hand-Carved Golden Arch</h4>
+                <p class="hotspot-desc" id="hotspot-desc">Ornate miniature columns and archway sculpted by hand and gilded with warm metallic paint.</p>
+              </div>
+            </div>
+
+            <!-- Angle Thumbnails -->
+            <div class="thumb-strip" id="thumb-strip" aria-label="View different angles"></div>
+          </div>
+
+          <!-- Right: Editorial Product Info & Etsy Conversion Panel -->
+          <div class="gallery-info-col">
+            <div class="info-card">
+              <div class="status-row mono">
+                <span class="status-badge">
+                  <span class="pulse-dot"></span> AVAILABLE ON ETSY
+                </span>
+                <span class="edition-tag" id="piece-edition">EDITION 1 OF 1</span>
+              </div>
+
+              <h3 class="piece-name" id="piece-name">The Moonlit Cat Shrine</h3>
+              <p class="piece-story" id="piece-story">
+                Under the glow of midnight lanterns, a tiny guardian watches over the stars. Sculpted with an ornate golden archway, hand-painted drifting lantern backdrop, and a curious clay black cat wearing a crescent moon collar.
+              </p>
+
+              <ul class="piece-specs mono" id="piece-specs"></ul>
+
+              <div class="info-cta-stack">
+                <a
+                  href="https://www.etsy.com/shop/PeachyByGiang"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-primary btn-lg btn-full"
+                  id="piece-etsy-btn"
+                >
+                  <span>Adopt on Etsy</span>
+                  <span class="btn-arrow" aria-hidden="true">↗</span>
+                </a>
+                <a href="#custom" class="btn btn-outline btn-full">
+                  <span>Request Custom Name Plaque</span>
+                </a>
+              </div>
+
+              <p class="shipping-note">
+                ✈️ Carefully double-boxed with shock-absorbing padding. Tracked international shipping from Vietnam.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: 4-Step Craftsmanship Stack (Inspired by Beauty Studio) -->
+    <section class="craft-section" id="craft">
+      <div class="container">
+        <div class="craft-intro">
+          <p class="section-kicker mono">03 / BEHIND THE SCENES</p>
+          <h2 class="section-title">How a lump of clay becomes a <em class="serif-it">world.</em></h2>
+          <p class="section-lead">
+            Each creation takes dozens of quiet hours at Giang’s studio desk. Follow the real behind-the-scenes journey of our upcoming dragon diorama.
+          </p>
+        </div>
+
+        <div class="craft-stack">
+          <article class="craft-card" style="--card-index: 0;">
+            <div class="craft-card-body">
+              <div class="craft-meta">
+                <span class="craft-num serif-it">01</span>
+                <span class="mono craft-phase">CONCEPT & SKETCH</span>
+              </div>
+              <h3 class="craft-title">Daydreaming on paper first.</h3>
+              <p class="craft-desc">
+                Every diorama starts as a quiet pencil sketch—mapping the meeting between a character, ancient pillars, and the glow of floating lanterns under the stars.
+              </p>
+              <div class="craft-chips mono">
+                <span>Original Storyboard</span>
+                <span>Scale Planning</span>
+              </div>
+            </div>
+            <div class="craft-card-media">
+              <img src="./assets/step-01-sketch.webp" alt="Pencil concept sketch of a girl meeting a white dragon under lanterns" loading="lazy" />
+            </div>
+          </article>
+
+          <article class="craft-card" style="--card-index: 1;">
+            <div class="craft-card-body">
+              <div class="craft-meta">
+                <span class="craft-num serif-it">02</span>
+                <span class="mono craft-phase">MICRO-SCULPTING</span>
+              </div>
+              <h3 class="craft-title">Shaped millimeter by millimeter.</h3>
+              <p class="craft-desc">
+                Using fine tweezers and sculpting tools, every tiny horn, scale, whisker, and pastry is placed individually by hand from soft clay—giving each creature its own soul.
+              </p>
+              <div class="craft-chips mono">
+                <span>Soft Sculpting Clay</span>
+                <span>Zero Molds</span>
+              </div>
+            </div>
+            <div class="craft-card-media">
+              <img src="./assets/step-02-dragon.webp" alt="Hand-sculpted white clay dragon head beside pink sculpting tools" loading="lazy" />
+            </div>
+          </article>
+
+          <article class="craft-card" style="--card-index: 2;">
+            <div class="craft-card-body">
+              <div class="craft-meta">
+                <span class="craft-num serif-it">03</span>
+                <span class="mono craft-phase">PAINTING & ILLUMINATION</span>
+              </div>
+              <h3 class="craft-title">Hand-painted skies & hidden warm LEDs.</h3>
+              <p class="craft-desc">
+                Backdrops are painted in layered acrylic strokes, then wired with delicate warm fairy lights and a discreet switch so the scene transforms the moment night falls.
+              </p>
+              <div class="craft-chips mono">
+                <span>Acrylic Night Skies</span>
+                <span>Warm Built-in LED</span>
+              </div>
+            </div>
+            <div class="craft-card-media">
+              <img src="./assets/step-03-lanterns.webp" alt="Hand-painted miniature blue night sky with floating lanterns and boat" loading="lazy" />
+            </div>
+          </article>
+
+          <article class="craft-card" style="--card-index: 3;">
+            <div class="craft-card-body">
+              <div class="craft-meta">
+                <span class="craft-num serif-it">04</span>
+                <span class="mono craft-phase">ARCHITECTURE & WORLDWIDE DELIVERY</span>
+              </div>
+              <h3 class="craft-title">Carved archways, safely delivered to your door.</h3>
+              <p class="craft-desc">
+                Hand-carved columns and gilded frames are sealed for durability, then cradled in custom shock-absorbing packaging for safe international travel from Vietnam.
+              </p>
+              <div class="craft-chips mono">
+                <span>Hand-Carved Arch</span>
+                <span>Global Tracking</span>
+              </div>
+            </div>
+            <div class="craft-card-media">
+              <img src="./assets/step-04-arch.webp" alt="Hand-carved white miniature stone pillar and archway frame in progress" loading="lazy" />
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Personalization & Live Golden Plaque Preview ("Mr. Karren" Insight) -->
+    <section class="custom-section" id="custom">
+      <div class="container">
+        <div class="custom-panel">
+          <div class="custom-visual-col">
+            <div class="plaque-compare">
+              <div class="plaque-real">
+                <img src="./assets/plaque-karren.webp" alt="Hand-lettered golden Mr. Karren name on the back of a miniature shrine" loading="lazy" />
+                <span class="media-badge mono liquid-glass">REAL HAND-LETTERED GOLD</span>
+              </div>
+
+              <!-- Interactive Live Arch Preview -->
+              <div class="plaque-live-wrap">
+                <div class="plaque-arch-mock" aria-label="Live custom name preview">
+                  <span class="plaque-arch-grain" aria-hidden="true"></span>
+                  <span class="plaque-live-text" id="plaque-live-text">Mr. Karren</span>
+                  <span class="plaque-arch-sub mono">HAND-GILDED BACKPLATE</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="custom-form-col">
+            <p class="section-kicker mono">04 / PERSONALIZATION & PET MEMORIALS</p>
+            <h2 class="section-title">Make it <em class="serif-it">truly</em> yours.</h2>
+            <p class="custom-desc">
+              Looking for a heartfelt gift or a gentle pet memorial? Every shrine can be personalized with a hand-lettered golden name on the back—or commissioned around your own beloved companion.
+            </p>
+
+            <div class="live-input-box">
+              <label for="custom-name-input" class="mono">TRY YOUR NAME OR PET’S NAME:</label>
+              <input
+                type="text"
+                id="custom-name-input"
+                maxlength="22"
+                placeholder="e.g. Luna, Milo, Mr. Karren..."
+                value="Mr. Karren"
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="custom-cta-row">
+              <button type="button" class="btn btn-primary btn-lg" id="open-custom-modal">
+                <span>Request Custom Commission</span>
+                <span class="btn-arrow" aria-hidden="true">✦</span>
+              </button>
+              <a href="https://www.etsy.com/shop/PeachyByGiang" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+                <span>Message on Etsy</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: Upcoming Drop — The Gentle White Dragon Waitlist -->
+    <section class="waitlist-section" id="waitlist">
+      <div class="container">
+        <div class="waitlist-card">
+          <div class="waitlist-media">
+            <video
+              src="./assets/dragon-teaser.mp4"
+              poster="./assets/step-02-dragon.webp"
+              autoplay
+              muted
+              loop
+              playsinline
+              class="waitlist-video"
+            ></video>
+            <span class="media-badge mono liquid-glass">WORK IN PROGRESS · EDITION OF 1</span>
+          </div>
+
+          <div class="waitlist-content">
+            <p class="section-kicker mono">05 / NEXT STORY COMING SOON</p>
+            <h2 class="section-title">A gentle white dragon is <em class="serif-it">waking up.</em></h2>
+            <p class="waitlist-desc">
+              Our upcoming enchanted lantern diorama is a single one-of-a-kind piece. Join the studio list to get a private preview & 24-hour early access link before it goes live on Etsy.
+            </p>
+
+            <form class="waitlist-form liquid-glass" id="waitlist-form">
+              <input
+                type="email"
+                id="waitlist-email"
+                required
+                placeholder="Enter your email for early access..."
+                aria-label="Email address for early access"
+              />
+              <button type="submit" class="btn btn-primary">
+                <span>Notify Me First ✦</span>
+              </button>
+            </form>
+            <p class="form-feedback" id="waitlist-feedback" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 8: Meet the Maker (Giang) & International Buyer FAQ -->
+    <section class="story-section" id="story">
+      <div class="container">
+        <div class="maker-grid">
+          <div class="maker-portrait-wrap">
+            <div class="arch-portrait">
+              <img src="./assets/artist-giang.webp" alt="Giang, founder and miniature clay artist of Peachy Tiny Studio" loading="lazy" />
+            </div>
+            <div class="maker-tag mono liquid-glass">GIANG · FOUNDER & SCULPTOR</div>
+          </div>
+
+          <div class="maker-copy">
+            <p class="section-kicker mono">06 / MEET THE MAKER</p>
+            <h2 class="section-title">Sculpting tiny worlds to <em class="serif-it">heal</em> the inner child.</h2>
+            <p class="maker-quote">
+              “Whenever reality feels a bit too loud and overwhelming, my little desk becomes a quiet sanctuary. Shaping tiny lanterns, sleepy cats, and gentle dragons out of clay is my favorite way to slow down—and I hope each piece brings that same soft calm into your home.”
+            </p>
+            <p class="maker-sign">— Giang, Peachy Tiny Studio (Vietnam)</p>
+
+            <div class="social-pills">
+              <a href="https://www.etsy.com/shop/PeachyByGiang" target="_blank" rel="noopener noreferrer" class="social-pill">Etsy ↗</a>
+              <a href="https://www.instagram.com/peachy.tinystudio" target="_blank" rel="noopener noreferrer" class="social-pill">Instagram ↗</a>
+              <a href="https://www.tiktok.com/@peachy.tinystudio" target="_blank" rel="noopener noreferrer" class="social-pill">TikTok ↗</a>
+              <a href="https://www.threads.net/@peachy.tinystudio" target="_blank" rel="noopener noreferrer" class="social-pill">Threads ↗</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Accordion -->
+        <div class="faq-block">
+          <div class="faq-header">
+            <p class="section-kicker mono">07 / COLLECTOR FAQ</p>
+            <h3 class="faq-heading">Questions about <em class="serif-it">worldwide</em> adoption.</h3>
+          </div>
+
+          <div class="faq-list" id="faq-list">
+            <details class="faq-item" open>
+              <summary>
+                <span>How are fragile clay dioramas protected during international shipping?</span>
+                <span class="faq-plus" aria-hidden="true">+</span>
+              </summary>
+              <p>Every sculpture is sealed with a protective matte finish, cushioned in multi-layer soft foam inside a sturdy inner box, and double-boxed for international transit from Vietnam with full tracking.</p>
+            </details>
+
+            <details class="faq-item">
+              <summary>
+                <span>How do the built-in fairy lights and lanterns work?</span>
+                <span class="faq-plus" aria-hidden="true">+</span>
+              </summary>
+              <p>Each illuminated diorama features hidden warm-white LED wiring connected to a discreet, easy-to-reach toggle switch and replaceable coin/button battery pack—no messy cords on your desk.</p>
+            </details>
+
+            <details class="faq-item">
+              <summary>
+                <span>Can I request a custom pet sculpture or golden name plaque?</span>
+                <span class="faq-plus" aria-hidden="true">+</span>
+              </summary>
+              <p>Yes! You can add a hand-lettered golden name on the back of any shrine (like our “Mr. Karren” piece) or inquire about a custom pet memorial or fantasy scene via our custom request form or Etsy messages.</p>
+            </details>
+
+            <details class="faq-item">
+              <summary>
+                <span>Since pieces are 1-of-1, what if my favorite diorama is already adopted?</span>
+                <span class="faq-plus" aria-hidden="true">+</span>
+              </summary>
+              <p>Join our Early Access Waitlist above or message Giang on Etsy. While every piece has its own unique charm, we occasionally open limited made-to-order slots for beloved themes.</p>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Minimal Editorial Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="brand-star">✦</span>
+        <span class="brand-name">Peachy <em class="serif-it">Tiny Studio</em></span>
+      </div>
+      <p class="footer-note mono">HANDCRAFTED WITH LOVE IN VIETNAM · WORLDWIDE SHIPPING · © 2026</p>
+      <a href="#top" class="back-top mono">BACK TO TOP ↑</a>
+    </div>
+  </footer>
+
+  <!-- Custom Commission Modal -->
+  <dialog class="custom-modal" id="custom-modal" aria-labelledby="modal-title">
+    <div class="modal-inner">
+      <div class="modal-head">
+        <div>
+          <p class="mono section-kicker">CUSTOM COMMISSION INQUIRY</p>
+          <h3 id="modal-title" class="modal-title">Describe your <em class="serif-it">tiny</em> world.</h3>
+        </div>
+        <button type="button" class="modal-close" id="close-custom-modal" aria-label="Close modal">×</button>
+      </div>
+
+      <form class="modal-form" id="custom-inquiry-form">
+        <div class="field-group">
+          <label for="inq-name" class="mono">YOUR NAME</label>
+          <input type="text" id="inq-name" required placeholder="Your name" />
+        </div>
+        <div class="field-group">
+          <label for="inq-email" class="mono">YOUR EMAIL</label>
+          <input type="email" id="inq-email" required placeholder="you@example.com" />
+        </div>
+        <div class="field-group">
+          <label for="inq-plaque" class="mono">GOLDEN PLAQUE INSCRIPTION (OPTIONAL)</label>
+          <input type="text" id="inq-plaque" placeholder="e.g. Mr. Karren" />
+        </div>
+        <div class="field-group">
+          <label for="inq-idea" class="mono">STORY / PET DETAILS</label>
+          <textarea id="inq-idea" rows="3" required placeholder="Tell Giang about your pet, favorite colors, or cozy scene idea..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Send Inquiry to Studio ✦</button>
+        <p class="form-feedback" id="custom-feedback" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- GSAP 3.12.5 + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="./script.js" defer></script>
+</body>
+</html>
