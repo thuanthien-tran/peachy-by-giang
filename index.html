@@ -6,8 +6,8 @@
   <title>Peachy Tiny Studio — Hand-Sculpted Miniature Dioramas & Glowing Sanctuaries</title>
   <meta name="description" content="One-of-a-kind miniature clay dioramas with built-in warm LED lights. Hand-sculpted with patience in Vietnam & shipped worldwide via Etsy." />
 
-  <!-- Favicon (Golden Star) & Open Graph / Social Share Preview -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%230B0F1A'/%3E%3Cpath d='M32 10 L36.8 27.2 L54 32 L36.8 36.8 L32 54 L27.2 36.8 L10 32 L27.2 27.2 Z' fill='%23F4B95A'/%3E%3C/svg%3E" />
+  <!-- Favicon (Peachy Emblem) & Open Graph / Social Share Preview -->
+  <link rel="icon" type="image/png" href="./assets/peachy-icon.png" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://peachy-by-giang.vercel.app/" />
   <meta property="og:site_name" content="Peachy Tiny Studio" />
@@ -24,9 +24,45 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@400;500&family=Great+Vibes&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="./styles.css?v=32" />
+  <link rel="stylesheet" href="./styles.css?v=50" />
 </head>
-<body>
+<body class="is-intro-active">
+  <!-- Peachy Logo Radial Bloom Intro Preloader -->
+  <div class="intro-preloader" id="intro-preloader" role="status" aria-live="polite" aria-label="Loading Peachy Tiny Studio">
+    <div class="intro-aura" id="intro-aura" aria-hidden="true"></div>
+    <div class="intro-center">
+      <div class="intro-logo-block">
+        <div class="intro-logo-stage" id="intro-logo-stage">
+          <span class="intro-logo-bloom" id="intro-logo-bloom" aria-hidden="true"></span>
+          <img
+            src="./assets/peachy-logo.png?v=2"
+            alt="Peachy logo"
+            class="intro-logo-ghost"
+            width="850"
+            height="561"
+            decoding="async"
+          />
+          <img
+            src="./assets/peachy-logo.png?v=2"
+            alt=""
+            class="intro-logo-fill"
+            width="850"
+            height="561"
+            aria-hidden="true"
+            decoding="async"
+          />
+        </div>
+        <div class="intro-byline" id="intro-byline">by <em class="serif-it">Giang</em></div>
+      </div>
+      <div class="intro-progress-wrap" aria-hidden="true">
+        <div class="intro-progress-track">
+          <div class="intro-progress-fill" id="intro-progress-fill"></div>
+        </div>
+        <span class="intro-pct mono" id="intro-pct">00%</span>
+      </div>
+    </div>
+    <button type="button" class="intro-skip mono liquid-glass" id="intro-skip">SKIP ↗</button>
+  </div>
   <!-- Top 2px Golden Reading Progress Bar -->
   <div class="reading-progress-bar" id="reading-progress-bar" aria-hidden="true"></div>
   <!-- Subtle Firefly / Sunlit Dust Canvas -->
@@ -38,8 +74,8 @@
   <!-- Section 1: Floating Pill Header -->
   <header class="site-header" id="site-header">
     <a href="#top" class="brand-mark" aria-label="Peachy Tiny Studio Home">
-      <span class="brand-star" aria-hidden="true">✦</span>
-      <span class="brand-name">Peachy <em class="serif-it">Tiny Studio</em></span>
+      <img src="./assets/peachy-icon.png" alt="" class="brand-logo-icon" width="24" height="24" aria-hidden="true" decoding="async" />
+      <span class="brand-name"><span class="brand-word-peachy">Peachy</span> <em class="brand-word-sub serif-it">Tiny Studio</em></span>
     </a>
 
     <nav class="pill-nav liquid-glass" aria-label="Primary Navigation">
@@ -213,19 +249,22 @@
                 <div class="hotspots-layer" id="hotspots-layer"></div>
               </div>
 
-              <!-- Active Hotspot Detail Card (overlay on desktop, static below image on mobile) -->
-              <div class="hotspot-card liquid-glass" id="hotspot-card" aria-live="polite">
-                <span class="hotspot-accent-line" id="hotspot-accent-line" aria-hidden="true"></span>
-                <div class="hotspot-card-top">
-                  <span class="mono hotspot-tag" id="hotspot-tag">DETAIL 01 / 04</span>
-                  <div class="hotspot-controls">
-                    <button type="button" class="hotspot-nav-btn" id="hotspot-prev" aria-label="Previous detail">‹</button>
-                    <button type="button" class="hotspot-nav-btn" id="hotspot-next" aria-label="Next detail">›</button>
-                    <button type="button" class="hotspot-close" id="hotspot-close" aria-label="Close detail">×</button>
+              <!-- Active Hotspot Detail Card (anchored near active pin on desktop, below stage on mobile) -->
+              <div class="hotspot-card" id="hotspot-card" data-side="bottom" aria-live="polite">
+                <span class="hotspot-pointer" id="hotspot-pointer" aria-hidden="true"></span>
+                <div class="hotspot-card-surface liquid-glass">
+                  <span class="hotspot-accent-line" id="hotspot-accent-line" aria-hidden="true"></span>
+                  <div class="hotspot-card-top">
+                    <span class="mono hotspot-tag" id="hotspot-tag">DETAIL 01 / 04</span>
+                    <div class="hotspot-controls">
+                      <button type="button" class="hotspot-nav-btn" id="hotspot-prev" aria-label="Previous detail">‹</button>
+                      <button type="button" class="hotspot-nav-btn" id="hotspot-next" aria-label="Next detail">›</button>
+                      <button type="button" class="hotspot-close" id="hotspot-close" aria-label="Close detail">×</button>
+                    </div>
                   </div>
+                  <h4 class="hotspot-title" id="hotspot-title">Hand-Carved Golden Arch</h4>
+                  <p class="hotspot-desc" id="hotspot-desc">Ornate miniature columns and archway sculpted by hand and gilded with warm metallic paint.</p>
                 </div>
-                <h4 class="hotspot-title" id="hotspot-title">Hand-Carved Golden Arch</h4>
-                <p class="hotspot-desc" id="hotspot-desc">Ornate miniature columns and archway sculpted by hand and gilded with warm metallic paint.</p>
               </div>
             </div>
 
@@ -592,25 +631,42 @@
       </div>
     </section>
 
-    <!-- Section 9: Upcoming Drop — The Gentle White Dragon Waitlist -->
+    <!-- Section 9: Upcoming Story — The Gentle White Dragon -->
     <section class="waitlist-section" id="waitlist">
       <div class="container">
         <div class="waitlist-card">
-          <div class="waitlist-media">
+          <div class="waitlist-media" id="dragon-video-box">
             <video
               src="./assets/dragon-teaser.mp4"
               poster="./assets/step-02-dragon.webp"
-              autoplay
-              muted
-              loop
               playsinline
+              preload="metadata"
               class="waitlist-video"
+              id="dragon-video"
             ></video>
-            <span class="media-badge mono liquid-glass">WORK IN PROGRESS · EDITION OF 1</span>
+
+            <button type="button" class="video-sound-btn liquid-glass" id="dragon-sound-btn" aria-label="Toggle video sound" aria-pressed="true" title="Sound">
+              <span id="dragon-sound-icon" aria-hidden="true">🔊</span>
+            </button>
+
+            <button type="button" class="video-sound-prompt liquid-glass mono is-hidden" id="dragon-sound-prompt">
+              <span aria-hidden="true">🔇</span>
+              <span id="dragon-sound-prompt-text">TAP FOR SOUND</span>
+            </button>
+
+            <div class="video-replay-overlay is-hidden" id="dragon-replay-overlay">
+              <button type="button" class="video-replay-btn liquid-glass" id="dragon-replay-btn">
+                <span class="replay-icon" aria-hidden="true">↻</span>
+                <span id="dragon-replay-label">Watch Again</span>
+              </button>
+            </div>
           </div>
 
           <div class="waitlist-content">
-            <p class="section-kicker mono">07 / NEXT STORY COMING SOON</p>
+            <div class="waitlist-eyebrow-row">
+              <p class="section-kicker mono">07 / NEXT STORY COMING SOON</p>
+              <span class="media-badge-inline mono">WORK IN PROGRESS · EDITION OF 1</span>
+            </div>
             <h2 class="section-title">A gentle white dragon is <em class="serif-it">waking up.</em></h2>
             <p class="waitlist-desc">
               Our upcoming enchanted lantern diorama is a single one-of-a-kind piece—hand-sculpted horn by horn at Giang’s desk and coming soon to Etsy.
@@ -746,8 +802,8 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-brand">
-        <span class="brand-star">✦</span>
-        <span class="brand-name">Peachy <em class="serif-it">Tiny Studio</em></span>
+        <img src="./assets/peachy-icon.png" alt="" class="brand-logo-icon" width="24" height="24" aria-hidden="true" decoding="async" />
+        <span class="brand-name"><span class="brand-word-peachy">Peachy</span> <em class="brand-word-sub serif-it">Tiny Studio</em></span>
       </div>
       <p class="footer-note mono">HANDCRAFTED WITH LOVE IN VIETNAM · WORLDWIDE SHIPPING · © 2026</p>
       <a href="#top" class="back-top mono">BACK TO TOP ↑</a>
@@ -862,7 +918,7 @@
   <!-- GSAP 3.12.5 + ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="./i18n.js?v=31" defer></script>
-  <script src="./script.js?v=31" defer></script>
+  <script src="./i18n.js?v=42" defer></script>
+  <script src="./script.js?v=46" defer></script>
 </body>
 </html>

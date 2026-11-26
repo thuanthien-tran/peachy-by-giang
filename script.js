@@ -439,9 +439,11 @@
   let activeHotspotIndex = 0;
   let hotspotTl = null;
 
+  const galleryStage = document.getElementById('gallery-stage');
   const mainImg = document.getElementById('gallery-main-img');
   const hotspotsLayer = document.getElementById('hotspots-layer');
   const hotspotCard = document.getElementById('hotspot-card');
+  const hotspotPointer = document.getElementById('hotspot-pointer');
   const hotspotAccentLine = document.getElementById('hotspot-accent-line');
   const hotspotTag = document.getElementById('hotspot-tag');
   const hotspotTitle = document.getElementById('hotspot-title');
@@ -455,6 +457,115 @@
   const pieceStory = document.getElementById('piece-story');
   const pieceSpecs = document.getElementById('piece-specs');
   const pieceEtsyBtn = document.getElementById('piece-etsy-btn');
+
+  function positionHotspotCard(spot, allSpots = []) {
+    if (!hotspotCard || !galleryStage || !spot) return;
+    if (window.innerWidth <= 640) {
+      hotspotCard.style.width = '';
+      hotspotCard.style.left = '';
+      hotspotCard.style.top = '';
+      return;
+    }
+
+    const stageW = galleryStage.clientWidth;
+    const stageH = galleryStage.clientHeight;
+    if (!stageW || !stageH) return;
+
+    const cardW = Math.min(276, stageW - 24);
+    const cardH = 162;
+    const pad = 12;
+    const gap = 24;
+    const pinClearance = 24;
+    hotspotCard.style.width = `${cardW}px`;
+
+    const px = (spot.x / 100) * stageW;
+    const py = (spot.y / 100) * stageH;
+    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+
+    // Outward X anchor pushes left-side pins flush left & right-side pins flush right to clear center pins/subject
+    const outwardX =
+      spot.x <= 46
+        ? clamp(px - cardW * 0.82, pad, stageW - cardW - pad)
+        : spot.x >= 56
+        ? clamp(px - cardW * 0.18, pad, stageW - cardW - pad)
+        : clamp(px - cardW / 2, pad, stageW - cardW - pad);
+
+    // Unclamped side offsets so a side never gets pushed back over the active pin
+    const candidates = [
+      { side: 'right',  left: px + gap,         top: clamp(py - cardH * 0.45, pad, stageH - cardH - pad) },
+      { side: 'left',   left: px - cardW - gap, top: clamp(py - cardH * 0.45, pad, stageH - cardH - pad) },
+      { side: 'bottom', left: outwardX,         top: py + gap },
+      { side: 'top',    left: outwardX,         top: py - cardH - gap },
+    ];
+
+    // Score candidates: strictly stay inside stage bounds, avoid covering ANY pin, stay near active pin & outward from center
+    const centerX = stageW * 0.5;
+    const centerY = stageH * 0.46;
+    let best = candidates[2];
+    let bestScore = Infinity;
+
+    for (const c of candidates) {
+      const outOfBounds =
+        c.left < pad ||
+        c.left + cardW > stageW - pad ||
+        c.top < pad ||
+        c.top + cardH > stageH - pad;
+
+      let overlapCount = 0;
+      for (const s of allSpots) {
+        const sx = (s.x / 100) * stageW;
+        const sy = (s.y / 100) * stageH;
+        if (
+          sx >= c.left - pinClearance &&
+          sx <= c.left + cardW + pinClearance &&
+          sy >= c.top - pinClearance &&
+          sy <= c.top + cardH + pinClearance
+        ) {
+          overlapCount += s.id === spot.id ? 10 : 1;
+        }
+      }
+
+      const cardCx = c.left + cardW / 2;
+      const cardCy = c.top + cardH / 2;
+      const distToPin = Math.hypot(cardCx - px, cardCy - py);
+      const distFromCenter = Math.hypot(cardCx - centerX, cardCy - centerY);
+      const score = (outOfBounds ? 50000 : 0) + overlapCount * 5000 + distToPin - distFromCenter * 0.65;
+
+      if (score < bestScore) {
+        bestScore = score;
+        best = c;
+      }
+    }
+
+    best.left = clamp(best.left, pad, stageW - cardW - pad);
+    best.top = clamp(best.top, pad, stageH - cardH - pad);
+
+    hotspotCard.style.left = `${Math.round(best.left)}px`;
+    hotspotCard.style.top = `${Math.round(best.top)}px`;
+    hotspotCard.setAttribute('data-side', best.side);
+
+    // Align pointer arrow directly toward the active pin
+    if (hotspotPointer) {
+      hotspotPointer.style.left = '';
+      hotspotPointer.style.right = '';
+      hotspotPointer.style.top = '';
+      hotspotPointer.style.bottom = '';
+      if (best.side === 'bottom' || best.side === 'top') {
+        const ptrX = clamp(px - best.left - 6, 18, cardW - 30);
+        hotspotPointer.style.left = `${Math.round(ptrX)}px`;
+      } else {
+        const ptrY = clamp(py - best.top - 6, 18, cardH - 30);
+        hotspotPointer.style.top = `${Math.round(ptrY)}px`;
+      }
+    }
+  }
+
+  window.addEventListener('resize', () => {
+    const piece = DIORAMAS[activePieceKey];
+    if (piece && activeAngleIndex === 0 && !hotspotCard.classList.contains('is-hidden')) {
+      positionHotspotCard(piece.hotspots[activeHotspotIndex], piece.hotspots);
+    }
+  });
 
   function showHotspot(spot, animate = true) {
     if (!hotspotCard) return;
@@ -474,6 +585,7 @@
     hotspotTitle.textContent = locSpot.title;
     hotspotDesc.textContent = locSpot.desc;
     hotspotCard.classList.remove('is-hidden');
+    positionHotspotCard(spot, piece ? piece.hotspots : [spot]);
 
     hotspotsLayer.querySelectorAll('.hotspot-pin').forEach((pin) => {
       pin.classList.toggle('is-active', pin.dataset.id === spot.id);
@@ -929,23 +1041,121 @@
   }
 
   /* ------------------------------------------------------------------------
-     7. Upcoming Dragon Drop Waitlist Form
+     7. Upcoming Story Video (Full 9:16, Play Once on Scroll with Sound, Tap to Replay)
      ------------------------------------------------------------------------ */
-  const waitlistForm = document.getElementById('waitlist-form');
-  const waitlistEmail = document.getElementById('waitlist-email');
-  const waitlistFeedback = document.getElementById('waitlist-feedback');
+  const dragonVideoBox = document.getElementById('dragon-video-box');
+  const dragonVideo = document.getElementById('dragon-video');
+  const dragonSoundBtn = document.getElementById('dragon-sound-btn');
+  const dragonSoundIcon = document.getElementById('dragon-sound-icon');
+  const dragonSoundPrompt = document.getElementById('dragon-sound-prompt');
+  const dragonReplayOverlay = document.getElementById('dragon-replay-overlay');
+  const dragonReplayBtn = document.getElementById('dragon-replay-btn');
 
-  if (waitlistForm) {
-    waitlistForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = waitlistEmail.value.trim();
-      if (!email) return;
-      const d = getDict();
-      waitlistFeedback.textContent = d
-        ? d.waitlist.feedbackSuccess(email)
-        : `🐉 You’re on the early-access list (${email})! We’ll notify you 24h before the White Dragon goes live on Etsy.`;
-      waitlistForm.reset();
+  if (dragonVideo && dragonVideoBox) {
+    let hasFinishedOnce = false;
+    let isCurrentlyVisible = false;
+
+    function syncSoundUI() {
+      const isMuted = dragonVideo.muted;
+      if (dragonSoundIcon) dragonSoundIcon.textContent = isMuted ? '🔇' : '🔊';
+      if (dragonSoundBtn) dragonSoundBtn.setAttribute('aria-pressed', String(!isMuted));
+      if (dragonSoundPrompt) {
+        const showPrompt = isMuted && !dragonVideo.paused && !hasFinishedOnce;
+        dragonSoundPrompt.classList.toggle('is-hidden', !showPrompt);
+      }
+    }
+
+    async function playWithSoundPreferred() {
+      if (dragonReplayOverlay) dragonReplayOverlay.classList.add('is-hidden');
+      try {
+        dragonVideo.muted = false;
+        await dragonVideo.play();
+      } catch (_) {
+        // Browser blocked unmuted autoplay because user hasn't interacted yet -> play muted + show tap-for-sound pill
+        try {
+          dragonVideo.muted = true;
+          await dragonVideo.play();
+        } catch (_) {}
+      }
+      syncSoundUI();
+    }
+
+    function replayFromStart() {
+      hasFinishedOnce = false;
+      dragonVideo.currentTime = 0;
+      dragonVideo.muted = false;
+      if (dragonReplayOverlay) dragonReplayOverlay.classList.add('is-hidden');
+      dragonVideo.play().catch(() => {});
+      syncSoundUI();
+    }
+
+    dragonVideo.addEventListener('ended', () => {
+      hasFinishedOnce = true;
+      if (dragonSoundPrompt) dragonSoundPrompt.classList.add('is-hidden');
+      if (dragonReplayOverlay) dragonReplayOverlay.classList.remove('is-hidden');
     });
+
+    dragonVideo.addEventListener('volumechange', syncSoundUI);
+
+    if (dragonSoundBtn) {
+      dragonSoundBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dragonVideo.muted = !dragonVideo.muted;
+        if (dragonVideo.paused && !hasFinishedOnce) {
+          dragonVideo.play().catch(() => {});
+        }
+        syncSoundUI();
+      });
+    }
+
+    if (dragonSoundPrompt) {
+      dragonSoundPrompt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dragonVideo.muted = false;
+        if (dragonVideo.paused) dragonVideo.play().catch(() => {});
+        syncSoundUI();
+      });
+    }
+
+    if (dragonReplayBtn) {
+      dragonReplayBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        replayFromStart();
+      });
+    }
+
+    dragonVideoBox.addEventListener('click', () => {
+      if (hasFinishedOnce || dragonVideo.ended) {
+        replayFromStart();
+      } else if (dragonVideo.muted) {
+        dragonVideo.muted = false;
+        if (dragonVideo.paused) dragonVideo.play().catch(() => {});
+        syncSoundUI();
+      } else if (dragonVideo.paused) {
+        dragonVideo.play().catch(() => {});
+      } else {
+        dragonVideo.pause();
+      }
+    });
+
+    if ('IntersectionObserver' in window) {
+      const vidObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            isCurrentlyVisible = entry.isIntersecting;
+            if (isCurrentlyVisible) {
+              if (!hasFinishedOnce && dragonVideo.paused) {
+                playWithSoundPreferred();
+              }
+            } else if (!dragonVideo.paused) {
+              dragonVideo.pause();
+            }
+          });
+        },
+        { threshold: 0.45 }
+      );
+      vidObserver.observe(dragonVideoBox);
+    }
   }
 
   const contactForm = document.getElementById('contact-form');
@@ -1254,10 +1464,12 @@
 
     // Waitlist / Upcoming Story
     setText('#waitlist .section-kicker', d.waitlist.kicker);
-    setText('#waitlist .media-badge', d.waitlist.badge);
+    setText('#waitlist .media-badge-inline', d.waitlist.badge);
     setHtml('#waitlist .section-title', d.waitlist.titleHtml);
     setText('.waitlist-desc', d.waitlist.desc);
     setText('#waitlist-follow-label', d.waitlist.followBtn);
+    if (d.waitlist.replayBtn) setText('#dragon-replay-label', d.waitlist.replayBtn);
+    if (d.waitlist.tapSound) setText('#dragon-sound-prompt-text', d.waitlist.tapSound);
 
     // FAQ
     setText('#faq .section-kicker', d.faq.kicker);
@@ -1334,7 +1546,6 @@
       { sel: '#waitlist .waitlist-media, #waitlist .waitlist-content > *', step: 95 },
       { sel: '#faq .faq-header > *, #faq .faq-item', step: 90 },
       { sel: '#contact .contact-info-col > *, #contact .contact-form', step: 95 },
-      { sel: '.site-footer .footer-inner > *', step: 80 },
     ];
 
     const allTargets = [];
@@ -1468,20 +1679,8 @@
     }
   }
 
-  function initMotion() {
-    if (typeof window.gsap !== 'undefined') {
-      gsap.registerPlugin(ScrollTrigger);
-    }
-
-    applyLanguage(currentLang);
-    initScrollReveals();
-    initMicroAnimations();
-
-    if (prefersReducedMotion || typeof window.gsap === 'undefined') {
-      return;
-    }
-
-    // Hero entrance
+  function playHeroEntrance() {
+    if (prefersReducedMotion || typeof window.gsap === 'undefined') return;
     gsap.from('.hero-eyebrow, .hero-title, .hero-subtitle, .hero-cta-row', {
       y: 28,
       opacity: 0,
@@ -1490,6 +1689,97 @@
       ease: 'power3.out',
       clearProps: 'transform,opacity',
     });
+  }
+
+  function runIntroPreloader() {
+    const preloader = document.getElementById('intro-preloader');
+    const pctEl = document.getElementById('intro-pct');
+    const fillEl = document.getElementById('intro-progress-fill');
+    const skipBtn = document.getElementById('intro-skip');
+    const d = getDict();
+
+    if (!preloader || prefersReducedMotion) {
+      document.body.classList.remove('is-intro-active');
+      if (preloader) preloader.classList.add('is-done');
+      playHeroEntrance();
+      return;
+    }
+
+    if (d && d.intro && skipBtn) {
+      skipBtn.textContent = d.intro.skip;
+    }
+
+    const isReturning = (() => {
+      try { return sessionStorage.getItem('peachy-intro-seen') === '1'; } catch (_) { return false; }
+    })();
+
+    const duration = isReturning ? 1100 : 2100;
+    const start = performance.now();
+    let dismissed = false;
+
+    function finishIntro(immediate = false) {
+      if (dismissed) return;
+      dismissed = true;
+      try { sessionStorage.setItem('peachy-intro-seen', '1'); } catch (_) {}
+
+      if (pctEl) pctEl.textContent = '100%';
+      if (fillEl) fillEl.style.width = '100%';
+      preloader.style.setProperty('--intro-spread', '132%');
+      preloader.classList.add('is-lit');
+
+      const leaveDelay = immediate ? 0 : 320;
+      setTimeout(() => {
+        document.body.classList.remove('is-intro-active');
+        preloader.classList.add('is-leaving');
+        playHeroEntrance();
+        setTimeout(() => preloader.classList.add('is-done'), 900);
+      }, leaveDelay);
+    }
+
+    if (skipBtn) {
+      skipBtn.addEventListener('click', () => finishIntro(true));
+    }
+
+    // Hard failsafe so the intro can never block the page
+    const failsafeTimer = setTimeout(() => finishIntro(true), 4500);
+
+    function tickIntro(now) {
+      if (dismissed) return;
+      const elapsed = now - start;
+      const raw = Math.min(1, elapsed / duration);
+      // Smooth ease-out curve for the 0 -> 100% logo bloom
+      const eased = 1 - Math.pow(1 - raw, 2.2);
+      const pct = Math.round(eased * 100);
+      const spreadPct = (eased * 132).toFixed(2);
+
+      if (pctEl) pctEl.textContent = `${String(pct).padStart(2, '0')}%`;
+      if (fillEl) fillEl.style.width = `${pct}%`;
+      preloader.style.setProperty('--intro-spread', `${spreadPct}%`);
+
+      if (pct >= 35) {
+        preloader.classList.add('is-lit');
+      }
+
+      if (raw < 1) {
+        requestAnimationFrame(tickIntro);
+      } else {
+        clearTimeout(failsafeTimer);
+        finishIntro(false);
+      }
+    }
+
+    requestAnimationFrame(tickIntro);
+  }
+
+  function initMotion() {
+    if (typeof window.gsap !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+
+    applyLanguage(currentLang);
+    initScrollReveals();
+    initMicroAnimations();
+    runIntroPreloader();
   }
 
   if (document.readyState === 'loading') {

@@ -218,6 +218,8 @@ window.PEACHY_I18N = {
       titleHtml: 'A gentle white dragon is <em class="serif-it">waking up.</em>',
       desc: 'Our upcoming enchanted lantern diorama is a single one-of-a-kind piece—hand-sculpted horn by horn at Giang’s desk and coming soon to Etsy.',
       followBtn: 'Follow Progress on Instagram',
+      replayBtn: 'Watch Again',
+      tapSound: 'TAP FOR SOUND',
     },
     faq: {
       kicker: '08 / COLLECTOR FAQ',
@@ -267,6 +269,9 @@ window.PEACHY_I18N = {
       ig: 'Instagram DM',
       contact: 'Contact Form',
       backTop: 'Back to top',
+    },
+    intro: {
+      skip: 'SKIP ↗',
     },
     footer: {
       note: 'HANDCRAFTED WITH LOVE IN VIETNAM · WORLDWIDE SHIPPING · © 2026',
@@ -489,6 +494,8 @@ window.PEACHY_I18N = {
       titleHtml: 'Một chú rồng trắng dịu dàng đang <em class="serif-it">thức giấc.</em>',
       desc: 'Mô hình bầu trời đèn hoa đăng sắp tới là tác phẩm độc bản duy nhất — đang được Giang nặn tay tỉ mỉ từng chiếc sừng, vảy rồng và sẽ sớm lên kệ Etsy.',
       followBtn: 'Theo Dõi Tiến Độ Trên Instagram',
+      replayBtn: 'Xem Lại Video',
+      tapSound: 'BẤM ĐỂ BẬT ÂM THANH',
     },
     faq: {
       kicker: '08 / CÂU HỎI THƯỜNG GẶP',
@@ -538,6 +545,9 @@ window.PEACHY_I18N = {
       ig: 'Nhắn Instagram DM',
       contact: 'Điền Form Liên Hệ',
       backTop: 'Lên đầu trang',
+    },
+    intro: {
+      skip: 'BỎ QUA ↗',
     },
     footer: {
       note: 'THỦ CÔNG BẰNG TÌNH YÊU TẠI VIỆT NAM · GIAO HÀNG TOÀN CẦU · © 2026',
