@@ -54,6 +54,8 @@ window.PEACHY_I18N = {
       customBtn: 'Request Custom Name Plaque',
       shippingNote: '✈️ Carefully double-boxed with shock-absorbing padding. Tracked international shipping from Vietnam.',
       detailPrefix: 'DETAIL',
+      videoBadge: 'ACTUAL HAND SCALE · 12S',
+      videoReplay: 'Watch Again',
       pieces: {
         shrine: {
           name: 'The Moonlit Cat Shrine',
@@ -65,7 +67,7 @@ window.PEACHY_I18N = {
             { label: 'PERSONALIZATION', value: 'Optional Gold Back Plaque' },
             { label: 'ORIGIN', value: 'Handmade in Vietnam' },
           ],
-          angles: ['Night Glow', 'Blue Moon', 'Golden Arch'],
+          angles: ['Night Glow', 'Blue Moon', 'Golden Arch', 'Meet the Cat'],
           hotspots: [
             { id: '01', title: 'Crescent Moon & Star Charm', desc: 'A tiny golden moon and star suspended gently beneath the hand-carved shrine arch.' },
             { id: '02', title: 'Hand-Sculpted Midnight Cat', desc: 'Shaped entirely by hand from soft clay, painted with expressive golden eyes and a miniature crescent moon collar.' },
@@ -270,12 +272,17 @@ window.PEACHY_I18N = {
       contact: 'Contact Form',
       backTop: 'Back to top',
     },
-    intro: {
-      skip: 'SKIP ↗',
-    },
     footer: {
       note: 'HANDCRAFTED WITH LOVE IN VIETNAM · WORLDWIDE SHIPPING · © 2026',
-      backTop: 'BACK TO TOP ↑',
+    },
+    journal: {
+      kicker: 'STUDIO JOURNAL · MINI BLOG',
+      titleHtml: 'Little notes from <em class="serif-it glow-accent">Giang’s</em> desk.',
+      filterAll: 'All',
+      filterImage: 'Photos',
+      filterVideo: 'Videos',
+      loadMore: 'Load More Notes ↓',
+      empty: 'No journal notes in this filter yet.',
     },
   },
 
@@ -330,6 +337,8 @@ window.PEACHY_I18N = {
       customBtn: 'Đặt Khắc Tên Ánh Vàng',
       shippingNote: '✈️ Đóng gói 2 lớp hộp kèm xốp chống sốc cẩn thận. Giao hàng quốc tế có mã vận đơn từ Việt Nam.',
       detailPrefix: 'CHI TIẾT',
+      videoBadge: 'TỶ LỆ TRÊN TAY · 12S',
+      videoReplay: 'Xem lại',
       pieces: {
         shrine: {
           name: 'Miếu Mèo Ánh Trăng',
@@ -341,7 +350,7 @@ window.PEACHY_I18N = {
             { label: 'CÁ NHÂN HÓA', value: 'Viết tên vàng kim mặt sau' },
             { label: 'XUẤT XỨ', value: 'Thủ công tại Việt Nam' },
           ],
-          angles: ['Đèn Đêm', 'Trăng Xanh', 'Vòm Vàng'],
+          angles: ['Đèn Đêm', 'Trăng Xanh', 'Vòm Vàng', 'Clip Chú Mèo'],
           hotspots: [
             { id: '01', title: 'Mặt Trăng & Ngôi Sao Vàng', desc: 'Mặt trăng khuyết và ngôi sao ánh vàng nhỏ xíu treo nhẹ dưới mái vòm chạm khắc thủ công.' },
             { id: '02', title: 'Chú Mèo Đen Nặn Tay', desc: 'Được nặn hoàn toàn bằng tay từ đất sét mềm, đôi mắt vàng tò mò và chiếc vòng cổ mặt trăng.' },
@@ -546,12 +555,17 @@ window.PEACHY_I18N = {
       contact: 'Điền Form Liên Hệ',
       backTop: 'Lên đầu trang',
     },
-    intro: {
-      skip: 'BỎ QUA ↗',
-    },
     footer: {
       note: 'THỦ CÔNG BẰNG TÌNH YÊU TẠI VIỆT NAM · GIAO HÀNG TOÀN CẦU · © 2026',
-      backTop: 'LÊN ĐẦU TRANG ↑',
+    },
+    journal: {
+      kicker: 'NHẬT KÝ GÓC NHỎ · MINI BLOG',
+      titleHtml: 'Những mẩu chuyện nhỏ từ <em class="serif-it glow-accent">bàn nặn đất sét.</em>',
+      filterAll: 'Tất cả',
+      filterImage: 'Hình ảnh',
+      filterVideo: 'Video',
+      loadMore: 'Xem Thêm Bài Viết ↓',
+      empty: 'Chưa có bài viết nào trong mục này.',
     },
   },
 };

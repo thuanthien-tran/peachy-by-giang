@@ -207,10 +207,14 @@
     }
   });
 
-  // Attach click-to-zoom on key showcase photos
+  // Attach click-to-zoom on key showcase photos (skip when interactive loupe mode is active)
   const zoomMainImg = document.getElementById('gallery-main-img');
   if (zoomMainImg) {
-    zoomMainImg.addEventListener('click', () => openLightbox(zoomMainImg.src, zoomMainImg.alt));
+    zoomMainImg.addEventListener('click', () => {
+      const stageWrap = galleryStage ? galleryStage.closest('.gallery-stage-wrap') : null;
+      if (stageWrap && stageWrap.classList.contains('is-loupe-mode')) return;
+      openLightbox(zoomMainImg.src, zoomMainImg.alt);
+    });
   }
   const zoomPlaqueImg = document.querySelector('.plaque-real img');
   if (zoomPlaqueImg) {
@@ -352,6 +356,12 @@
         { src: './assets/shrine-main.webp', label: 'Night Glow' },
         { src: './assets/shrine-blue.webp', label: 'Blue Moon' },
         { src: './assets/shrine-gold.webp', label: 'Golden Arch' },
+        {
+          type: 'video',
+          src: './assets/tiny-cat-clip.mp4',
+          poster: './assets/tiny-cat-poster.webp',
+          label: 'Meet the Cat',
+        },
       ],
       hotspots: [
         {
@@ -457,6 +467,101 @@
   const pieceStory = document.getElementById('piece-story');
   const pieceSpecs = document.getElementById('piece-specs');
   const pieceEtsyBtn = document.getElementById('piece-etsy-btn');
+  const galleryVideoStage = document.getElementById('gallery-video-stage');
+  const galleryVideo = document.getElementById('gallery-video');
+  const galleryVideoBackdrop = document.getElementById('gallery-video-backdrop');
+  const galleryVideoSoundBtn = document.getElementById('gallery-video-sound-btn');
+  const galleryVideoSoundIcon = document.getElementById('gallery-video-sound-icon');
+  const galleryVideoReplay = document.getElementById('gallery-video-replay');
+  const galleryVideoReplayBtn = document.getElementById('gallery-video-replay-btn');
+  const galleryLoupe = document.getElementById('gallery-loupe');
+  const galleryLoupeToggle = document.getElementById('gallery-loupe-toggle');
+  const galleryStageWrap = galleryStage ? galleryStage.closest('.gallery-stage-wrap') : null;
+
+  let isLoupeMode = false;
+
+  function hideLoupe() {
+    if (galleryLoupe) galleryLoupe.classList.add('is-hidden');
+  }
+
+  function setLoupeMode(active) {
+    isLoupeMode = Boolean(active);
+    if (galleryStageWrap) {
+      galleryStageWrap.classList.toggle('is-loupe-mode', isLoupeMode);
+    }
+    if (galleryLoupeToggle) {
+      galleryLoupeToggle.classList.toggle('is-active', isLoupeMode);
+      galleryLoupeToggle.setAttribute('aria-pressed', String(isLoupeMode));
+    }
+    if (!isLoupeMode) {
+      hideLoupe();
+    } else if (galleryStage) {
+      const r = galleryStage.getBoundingClientRect();
+      // Compute background against unscaled natural stage after scale(1) applies
+      requestAnimationFrame(() => updateLoupePosition(r.left + r.width * 0.5, r.top + r.height * 0.52));
+    }
+  }
+
+  function updateLoupePosition(clientX, clientY) {
+    if (!isLoupeMode || !galleryLoupe || !galleryStage || !mainImg) return;
+    if (galleryVideoStage && !galleryVideoStage.classList.contains('is-hidden')) {
+      hideLoupe();
+      return;
+    }
+
+    const stageRect = galleryStage.getBoundingClientRect();
+    if (!stageRect.width || !stageRect.height) return;
+
+    const sx = clientX - stageRect.left;
+    const sy = clientY - stageRect.top;
+    if (sx < 0 || sy < 0 || sx > stageRect.width || sy > stageRect.height) {
+      hideLoupe();
+      return;
+    }
+
+    const zoom = 2.1;
+    const lensRadius = galleryLoupe.offsetWidth ? galleryLoupe.offsetWidth / 2 : 72;
+    const src = mainImg.currentSrc || mainImg.src;
+    if (!src) return;
+
+    const bgW = stageRect.width * zoom;
+    const bgH = stageRect.height * zoom;
+    const bgX = lensRadius - sx * zoom;
+    const bgY = lensRadius - sy * zoom;
+
+    galleryLoupe.style.left = `${sx.toFixed(1)}px`;
+    galleryLoupe.style.top = `${sy.toFixed(1)}px`;
+    galleryLoupe.style.backgroundImage = `url("${src}")`;
+    galleryLoupe.style.backgroundSize = `${bgW.toFixed(1)}px ${bgH.toFixed(1)}px`;
+    galleryLoupe.style.backgroundPosition = `${bgX.toFixed(1)}px ${bgY.toFixed(1)}px`;
+    galleryLoupe.classList.remove('is-hidden');
+  }
+
+  if (galleryStage && galleryLoupe) {
+    const onLoupeMove = (e) => {
+      if (!isLoupeMode) return;
+      if (e.target.closest('#gallery-loupe-toggle') || e.target.closest('#gallery-video-stage')) {
+        hideLoupe();
+        return;
+      }
+      updateLoupePosition(e.clientX, e.clientY);
+    };
+
+    galleryStage.addEventListener('pointerdown', onLoupeMove);
+    galleryStage.addEventListener('pointermove', onLoupeMove);
+    galleryStage.addEventListener('pointerleave', () => {
+      if (isLoupeMode && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        hideLoupe();
+      }
+    });
+  }
+
+  if (galleryLoupeToggle && galleryLoupe) {
+    galleryLoupeToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setLoupeMode(!isLoupeMode);
+    });
+  }
 
   function positionHotspotCard(spot, allSpots = []) {
     if (!hotspotCard || !galleryStage || !spot) return;
@@ -643,20 +748,125 @@
   if (hotspotPrev) hotspotPrev.addEventListener('click', () => stepHotspot(-1));
   if (hotspotNext) hotspotNext.addEventListener('click', () => stepHotspot(1));
 
-  function renderGallery(pieceKey, angleIdx = 0) {
+  function syncGalleryVideoSound() {
+    if (!galleryVideo) return;
+    const isMuted = galleryVideo.muted;
+    if (galleryVideoSoundIcon) galleryVideoSoundIcon.textContent = isMuted ? '🔇' : '🔊';
+    if (galleryVideoSoundBtn) galleryVideoSoundBtn.setAttribute('aria-pressed', String(!isMuted));
+  }
+
+  function stopGalleryVideo() {
+    if (galleryVideo && !galleryVideo.paused) {
+      galleryVideo.pause();
+    }
+    if (galleryVideoStage) {
+      galleryVideoStage.classList.add('is-hidden');
+      galleryVideoStage.setAttribute('aria-hidden', 'true');
+    }
+    if (galleryVideoReplay) {
+      galleryVideoReplay.classList.add('is-hidden');
+    }
+  }
+
+  function playGalleryVideo(angle) {
+    if (!galleryVideoStage || !galleryVideo) return;
+    if (angle && angle.poster && galleryVideoBackdrop) {
+      galleryVideoBackdrop.src = angle.poster;
+      galleryVideo.poster = angle.poster;
+    }
+    galleryVideoStage.classList.remove('is-hidden');
+    galleryVideoStage.setAttribute('aria-hidden', 'false');
+    if (galleryVideoReplay) galleryVideoReplay.classList.add('is-hidden');
+
+    galleryVideo.currentTime = 0;
+    galleryVideo.muted = false;
+    galleryVideo.play().catch(() => {
+      galleryVideo.muted = true;
+      galleryVideo.play().catch(() => {});
+      syncGalleryVideoSound();
+    });
+    syncGalleryVideoSound();
+  }
+
+  if (galleryVideo) {
+    galleryVideo.addEventListener('ended', () => {
+      if (galleryVideoReplay) galleryVideoReplay.classList.remove('is-hidden');
+    });
+    galleryVideo.addEventListener('volumechange', syncGalleryVideoSound);
+  }
+
+  if (galleryVideoSoundBtn && galleryVideo) {
+    galleryVideoSoundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      galleryVideo.muted = !galleryVideo.muted;
+      if (galleryVideo.paused && !galleryVideo.ended) {
+        galleryVideo.play().catch(() => {});
+      }
+      syncGalleryVideoSound();
+    });
+  }
+
+  if (galleryVideoReplayBtn && galleryVideo) {
+    galleryVideoReplayBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      playGalleryVideo();
+    });
+  }
+
+  if (galleryVideoStage && galleryVideo) {
+    galleryVideoStage.addEventListener('click', () => {
+      if (galleryVideo.ended) {
+        playGalleryVideo();
+      } else if (galleryVideo.paused) {
+        galleryVideo.play().catch(() => {});
+      } else {
+        galleryVideo.pause();
+      }
+    });
+
+    if ('IntersectionObserver' in window) {
+      const gVidObs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting && !galleryVideo.paused) {
+              galleryVideo.pause();
+            }
+          });
+        },
+        { threshold: 0.15 }
+      );
+      gVidObs.observe(galleryVideoStage);
+    }
+  }
+
+  function renderGallery(pieceKey, angleIdx = 0, opts = {}) {
     activePieceKey = pieceKey;
     activeAngleIndex = angleIdx;
     const piece = DIORAMAS[pieceKey];
     if (!piece) return;
 
-    // Update image
     const angle = piece.angles[angleIdx] || piece.angles[0];
-    mainImg.style.opacity = '0.35';
-    setTimeout(() => {
-      mainImg.src = angle.src;
-      mainImg.alt = `${piece.name} — ${angle.label}`;
-      mainImg.style.opacity = '1';
-    }, 140);
+    const isVideoAngle = angle.type === 'video';
+
+    setLoupeMode(false);
+    if (galleryLoupeToggle) {
+      galleryLoupeToggle.classList.toggle('is-hidden', isVideoAngle);
+    }
+
+    if (isVideoAngle) {
+      if (mainImg) mainImg.style.opacity = '0';
+      if (!opts.preserveVideo) {
+        playGalleryVideo(angle);
+      }
+    } else {
+      stopGalleryVideo();
+      mainImg.style.opacity = '0.35';
+      setTimeout(() => {
+        mainImg.src = angle.src;
+        mainImg.alt = `${piece.name} — ${angle.label}`;
+        mainImg.style.opacity = '1';
+      }, 140);
+    }
 
     // Update info (localized if dictionary loaded)
     const d = getDict();
@@ -670,14 +880,19 @@
       .map((s) => `<li><small>${s.label}</small><strong>${s.value}</strong></li>`)
       .join('');
 
-    // Render thumbnails
+    // Render thumbnails (supports 3 or 4 columns smoothly)
     thumbStrip.innerHTML = '';
+    thumbStrip.style.gridTemplateColumns = `repeat(${piece.angles.length}, 1fr)`;
     piece.angles.forEach((ang, idx) => {
       const angLabel = locPiece && locPiece.angles[idx] ? locPiece.angles[idx] : ang.label;
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = `thumb-btn${idx === angleIdx ? ' is-active' : ''}`;
-      btn.innerHTML = `<img src="${ang.src}" alt="${angLabel}" loading="lazy" /><span class="mono">${angLabel}</span>`;
+      if (ang.type === 'video') {
+        btn.innerHTML = `<img src="${ang.poster}" alt="${angLabel}" class="is-portrait-thumb" loading="lazy" /><em class="thumb-play-badge" aria-hidden="true">▶</em><span class="mono">${angLabel}</span>`;
+      } else {
+        btn.innerHTML = `<img src="${ang.src}" alt="${angLabel}" loading="lazy" /><span class="mono">${angLabel}</span>`;
+      }
       btn.addEventListener('click', () => renderGallery(pieceKey, idx));
       thumbStrip.appendChild(btn);
     });
@@ -970,6 +1185,14 @@
     });
   });
 
+  let plaqueSweepTimer = null;
+  function sweepPlaque() {
+    if (!plaqueArchMock || prefersReducedMotion) return;
+    plaqueArchMock.classList.remove('is-sweeping');
+    void plaqueArchMock.offsetWidth;
+    plaqueArchMock.classList.add('is-sweeping');
+  }
+
   function updatePlaquePreview(rawValue) {
     const val = rawValue.trim();
     if (plaqueLiveText) plaqueLiveText.textContent = val || 'Your Name';
@@ -980,16 +1203,23 @@
   }
 
   if (customNameInput) {
-    customNameInput.addEventListener('input', (e) => updatePlaquePreview(e.target.value));
+    customNameInput.addEventListener('input', (e) => {
+      updatePlaquePreview(e.target.value);
+      clearTimeout(plaqueSweepTimer);
+      plaqueSweepTimer = setTimeout(sweepPlaque, 150);
+    });
     updatePlaquePreview(customNameInput.value);
   }
 
   const plaqueStar = document.querySelector('.plaque-star');
   function sparklePlaque() {
-    if (!plaqueStar || prefersReducedMotion) return;
-    plaqueStar.classList.remove('is-sparkling');
-    void plaqueStar.offsetWidth;
-    plaqueStar.classList.add('is-sparkling');
+    if (prefersReducedMotion) return;
+    if (plaqueStar) {
+      plaqueStar.classList.remove('is-sparkling');
+      void plaqueStar.offsetWidth;
+      plaqueStar.classList.add('is-sparkling');
+    }
+    sweepPlaque();
   }
 
   presetChips.forEach((chip) => {
@@ -1006,6 +1236,7 @@
       const finish = btn.dataset.finish || 'cream';
       swatchBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
       if (plaqueArchMock) plaqueArchMock.setAttribute('data-finish', finish);
+      sweepPlaque();
     });
   });
 
@@ -1368,7 +1599,9 @@
     const customCtaSpan = document.querySelector('.info-cta-stack .btn-outline span');
     if (customCtaSpan) customCtaSpan.textContent = d.creations.customBtn;
     setText('#creations .shipping-note', d.creations.shippingNote);
-    renderGallery(activePieceKey, activeAngleIndex);
+    if (d.creations.videoBadge) setText('#gallery-video-badge', d.creations.videoBadge);
+    if (d.creations.videoReplay) setText('#gallery-video-replay-text', d.creations.videoReplay);
+    renderGallery(activePieceKey, activeAngleIndex, { preserveVideo: true });
 
     // Craft Carousel & Popup
     setText('#craft .section-kicker', d.craft.kicker);
@@ -1515,7 +1748,19 @@
 
     // Footer
     setText('.footer-note', d.footer.note);
-    setText('.back-top', d.footer.backTop);
+
+    // Studio Journal
+    if (d.journal) {
+      setText('#journal-kicker', d.journal.kicker);
+      setHtml('#journal-title', d.journal.titleHtml);
+      setText('#jf-all', d.journal.filterAll);
+      setText('#jf-image', d.journal.filterImage);
+      setText('#jf-video', d.journal.filterVideo);
+      setText('#journal-more-btn', d.journal.loadMore);
+      if (typeof window.__renderJournalGrid === 'function') {
+        window.__renderJournalGrid();
+      }
+    }
 
     if (typeof window.ScrollTrigger !== 'undefined') {
       ScrollTrigger.refresh();
@@ -1579,6 +1824,12 @@
     );
 
     allTargets.forEach((el) => observer.observe(el));
+
+    // Arch Portal Curtain Bloom (kept separate from .reveal-item vertical slide)
+    const archPortrait = document.querySelector('#story .arch-portrait');
+    if (archPortrait) {
+      observer.observe(archPortrait);
+    }
   }
 
   /* ------------------------------------------------------------------------
@@ -1620,24 +1871,77 @@
 
     if (prefersReducedMotion) return;
 
-    // 2. Subtle Hero Parallax on scroll
+    // 2. Hero Scroll Parallax + Interactive Diorama Depth & Lantern Halo (Desktop)
+    const heroStage = document.querySelector('.hero-stage');
     const heroMedia = document.querySelector('.hero-media-frame');
+    const heroLanternAura = document.querySelector('.hero-lantern-aura');
+    const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    let heroScrollY = 0;
+    let heroTargetDx = 0;
+    let heroTargetDy = 0;
+    let heroCurrDx = 0;
+    let heroCurrDy = 0;
+
+    function renderHeroTransform() {
+      if (!heroMedia) return;
+      heroMedia.style.transform = `translate3d(${heroCurrDx.toFixed(1)}px, ${(heroScrollY + heroCurrDy).toFixed(1)}px, 0)`;
+    }
+
     if (heroMedia) {
       window.addEventListener(
         'scroll',
         () => {
           const y = window.scrollY;
           if (y < window.innerHeight * 1.2) {
-            heroMedia.style.transform = `translate3d(0, ${Math.round(y * 0.16)}px, 0)`;
+            heroScrollY = Math.round(y * 0.16);
+            renderHeroTransform();
           }
         },
         { passive: true }
       );
     }
 
-    // Desktop-only subtle tactile animations
-    const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (!isFinePointer) return;
+
+    if (heroStage && heroMedia) {
+      let heroDepthRaf = null;
+      function tickHeroDepth() {
+        heroCurrDx += (heroTargetDx - heroCurrDx) * 0.1;
+        heroCurrDy += (heroTargetDy - heroCurrDy) * 0.1;
+        renderHeroTransform();
+        if (Math.abs(heroTargetDx - heroCurrDx) > 0.1 || Math.abs(heroTargetDy - heroCurrDy) > 0.1) {
+          heroDepthRaf = requestAnimationFrame(tickHeroDepth);
+        } else {
+          heroDepthRaf = null;
+        }
+      }
+      heroStage.addEventListener(
+        'mousemove',
+        (e) => {
+          const rect = heroStage.getBoundingClientRect();
+          const nx = (e.clientX - rect.left) / rect.width - 0.5;
+          const ny = (e.clientY - rect.top) / rect.height - 0.5;
+          heroTargetDx = -nx * 16;
+          heroTargetDy = -ny * 12;
+          if (heroLanternAura) {
+            heroLanternAura.style.setProperty('--hero-lx', `${(58 + nx * 18).toFixed(1)}%`);
+            heroLanternAura.style.setProperty('--hero-ly', `${(48 + ny * 14).toFixed(1)}%`);
+          }
+          if (!heroDepthRaf) heroDepthRaf = requestAnimationFrame(tickHeroDepth);
+        },
+        { passive: true }
+      );
+      heroStage.addEventListener('mouseleave', () => {
+        heroTargetDx = 0;
+        heroTargetDy = 0;
+        if (heroLanternAura) {
+          heroLanternAura.style.setProperty('--hero-lx', '58%');
+          heroLanternAura.style.setProperty('--hero-ly', '48%');
+        }
+        if (!heroDepthRaf) heroDepthRaf = requestAnimationFrame(tickHeroDepth);
+      });
+    }
 
     // 3. Craft Carousel Cards subtle 3D tilt on hover
     craftSlides.forEach((card) => {
@@ -1649,6 +1953,19 @@
       });
       card.addEventListener('mouseleave', () => {
         card.style.transform = '';
+      });
+    });
+
+    // 3B. Subtle Magnetic CTA Pull on Primary Buttons
+    document.querySelectorAll('.btn-primary').forEach((btn) => {
+      btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const dx = ((e.clientX - rect.left) / rect.width - 0.5) * 7;
+        const dy = ((e.clientY - rect.top) / rect.height - 0.5) * 5;
+        btn.style.transform = `translate3d(${dx.toFixed(1)}px, ${(dy - 2).toFixed(1)}px, 0)`;
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
       });
     });
 
@@ -1695,18 +2012,12 @@
     const preloader = document.getElementById('intro-preloader');
     const pctEl = document.getElementById('intro-pct');
     const fillEl = document.getElementById('intro-progress-fill');
-    const skipBtn = document.getElementById('intro-skip');
-    const d = getDict();
 
     if (!preloader || prefersReducedMotion) {
       document.body.classList.remove('is-intro-active');
       if (preloader) preloader.classList.add('is-done');
       playHeroEntrance();
       return;
-    }
-
-    if (d && d.intro && skipBtn) {
-      skipBtn.textContent = d.intro.skip;
     }
 
     const isReturning = (() => {
@@ -1717,9 +2028,17 @@
     const start = performance.now();
     let dismissed = false;
 
+    function onIntroKey(e) {
+      if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        finishIntro(true);
+      }
+    }
+
     function finishIntro(immediate = false) {
       if (dismissed) return;
       dismissed = true;
+      document.removeEventListener('keydown', onIntroKey);
       try { sessionStorage.setItem('peachy-intro-seen', '1'); } catch (_) {}
 
       if (pctEl) pctEl.textContent = '100%';
@@ -1736,9 +2055,9 @@
       }, leaveDelay);
     }
 
-    if (skipBtn) {
-      skipBtn.addEventListener('click', () => finishIntro(true));
-    }
+    // Click / tap anywhere on the intro screen or press Enter/Space/Escape to skip
+    preloader.addEventListener('click', () => finishIntro(true));
+    document.addEventListener('keydown', onIntroKey);
 
     // Hard failsafe so the intro can never block the page
     const failsafeTimer = setTimeout(() => finishIntro(true), 4500);
@@ -1771,12 +2090,208 @@
     requestAnimationFrame(tickIntro);
   }
 
+  /* ------------------------------------------------------------------------
+     9C. Studio Journal Mini-Blog (Vercel Blob API + Local Preview Fallback)
+     ------------------------------------------------------------------------ */
+  function initStudioJournal() {
+    const grid = document.getElementById('journal-grid');
+    if (!grid) return;
+
+    const filterBtns = Array.from(document.querySelectorAll('.journal-filter-btn'));
+    const moreWrap = document.getElementById('journal-more-wrap');
+    const moreBtn = document.getElementById('journal-more-btn');
+    const modal = document.getElementById('journal-modal');
+    const modalMedia = document.getElementById('journal-modal-media');
+    const modalTag = document.getElementById('journal-modal-tag');
+    const modalDate = document.getElementById('journal-modal-date');
+    const modalCaption = document.getElementById('journal-modal-caption');
+    const closeModalBtn = document.getElementById('close-journal-modal');
+
+    const SEED_POSTS = [
+      {
+        id: 'seed_cat_clip',
+        mediaType: 'video',
+        mediaUrl: './assets/tiny-cat-clip.mp4',
+        posterUrl: './assets/tiny-cat-poster.webp',
+        tag: 'Meet the Cat',
+        date: '2026-11-26',
+        captionVi: 'Chú mèo đen tí hon nằm gọn trên đầu ngón tay — đôi mắt vàng và chiếc vòng cổ trăng khuyết đều được vẽ từng nét một trong ánh đèn tối ở góc bàn nhỏ.',
+        captionEn: 'Our tiny midnight clay cat sitting right on my fingertips—golden eyes and crescent moon collar hand-painted brushstroke by brushstroke at my desk.',
+      },
+      {
+        id: 'seed_dragon_wip',
+        mediaType: 'image',
+        mediaUrl: './assets/step-02-dragon.webp',
+        tag: 'Behind the Clay',
+        date: '2026-11-22',
+        captionVi: 'Từng chiếc sừng nhỏ xíu của chú rồng trắng đang thành hình. Làm chậm lại một chút để mỗi đường nặn đều giữ được nét dịu dàng riêng.',
+        captionEn: 'Shaping each tiny horn on the upcoming white dragon. Slowing down so every curve holds a gentle handmade warmth.',
+      },
+      {
+        id: 'seed_studio_corner',
+        mediaType: 'image',
+        mediaUrl: './assets/studio-02.jpg',
+        tag: 'Studio Note',
+        date: '2026-11-18',
+        captionVi: 'Một buổi chiều nắng nghiêng qua khung cửa sổ nhỏ — nơi mấy hũ màu acrylic, đất sét mềm và chú gấu tốt nghiệp cùng nhau tạo nên những góc nhỏ phát sáng.',
+        captionEn: 'A sunlit afternoon by the window—acrylic jars, soft clay, and quiet daydreams slowly becoming glowing miniature worlds.',
+      },
+    ];
+
+    let allPosts = [...SEED_POSTS];
+    let activeFilter = 'all';
+    let visibleLimit = 6;
+
+    function getLocalDemoPosts() {
+      try {
+        const raw = localStorage.getItem('peachy-local-journal');
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function openJournalModal(post) {
+      if (!modal || !modalMedia || !post) return;
+      const caption = currentLang === 'vi' ? (post.captionVi || post.captionEn) : (post.captionEn || post.captionVi);
+      if (modalTag) modalTag.textContent = (post.tag || 'STUDIO NOTE').toUpperCase();
+      if (modalDate) modalDate.textContent = post.date || '';
+      if (modalCaption) modalCaption.textContent = caption || '';
+
+      if (post.mediaType === 'video') {
+        modalMedia.innerHTML = `<video src="${escapeHtml(post.mediaUrl)}" ${post.posterUrl ? `poster="${escapeHtml(post.posterUrl)}"` : ''} controls autoplay playsinline></video>`;
+      } else {
+        modalMedia.innerHTML = `<img src="${escapeHtml(post.mediaUrl)}" alt="${escapeHtml(post.tag || 'Studio journal photo')}" />`;
+      }
+
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeJournalModal() {
+      if (!modal) return;
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      if (modalMedia) modalMedia.innerHTML = '';
+      document.body.style.overflow = '';
+    }
+
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeJournalModal);
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeJournalModal();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) closeJournalModal();
+      });
+    }
+
+    function renderGrid() {
+      const d = getDict();
+      const filtered = allPosts.filter((p) => activeFilter === 'all' || p.mediaType === activeFilter);
+      const slice = filtered.slice(0, visibleLimit);
+
+      if (!slice.length) {
+        const emptyMsg = d && d.journal ? d.journal.empty : 'No journal notes yet.';
+        grid.innerHTML = `<p class="journal-empty">${escapeHtml(emptyMsg)}</p>`;
+        if (moreWrap) moreWrap.classList.add('is-hidden');
+        return;
+      }
+
+      grid.innerHTML = '';
+      slice.forEach((post) => {
+        const card = document.createElement('article');
+        card.className = 'journal-card';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+
+        const caption = currentLang === 'vi' ? (post.captionVi || post.captionEn) : (post.captionEn || post.captionVi);
+        const mediaHtml = post.mediaType === 'video'
+          ? (post.posterUrl
+              ? `<img src="${escapeHtml(post.posterUrl)}" alt="${escapeHtml(post.tag || 'Video post')}" loading="lazy" /><span class="journal-play-pill" aria-hidden="true">▶</span>`
+              : `<video src="${escapeHtml(post.mediaUrl)}#t=0.2" muted playsinline preload="metadata"></video><span class="journal-play-pill" aria-hidden="true">▶</span>`)
+          : `<img src="${escapeHtml(post.mediaUrl)}" alt="${escapeHtml(post.tag || 'Studio photo')}" loading="lazy" />`;
+
+        card.innerHTML = `
+          <div class="journal-card-media">${mediaHtml}</div>
+          <div class="journal-card-body">
+            <div class="journal-card-meta mono">
+              <span class="journal-tag-pill">${escapeHtml(post.tag || 'STUDIO NOTE')}</span>
+              <span>${escapeHtml(post.date || '')}</span>
+            </div>
+            <p class="journal-card-caption">${escapeHtml(caption)}</p>
+          </div>
+        `;
+
+        card.addEventListener('click', () => openJournalModal(post));
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openJournalModal(post);
+          }
+        });
+        grid.appendChild(card);
+      });
+
+      if (moreWrap) {
+        moreWrap.classList.toggle('is-hidden', filtered.length <= visibleLimit);
+      }
+    }
+
+    window.__renderJournalGrid = renderGrid;
+
+    filterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeFilter = btn.dataset.filter || 'all';
+        filterBtns.forEach((b) => {
+          const isAct = b === btn;
+          b.classList.toggle('is-active', isAct);
+          b.setAttribute('aria-selected', String(isAct));
+        });
+        renderGrid();
+      });
+    });
+
+    if (moreBtn) {
+      moreBtn.addEventListener('click', () => {
+        visibleLimit += 6;
+        renderGrid();
+      });
+    }
+
+    // Immediate render with local demo posts + seeds, then hydrate from /api/journal on Vercel
+    const localPosts = getLocalDemoPosts();
+    allPosts = localPosts.length ? [...localPosts, ...SEED_POSTS] : [...SEED_POSTS];
+    renderGrid();
+
+    fetch('/api/journal', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.ok && Array.isArray(data.posts) && data.posts.length > 0) {
+          allPosts = data.posts;
+          renderGrid();
+        }
+      })
+      .catch(() => {});
+  }
+
   function initMotion() {
     if (typeof window.gsap !== 'undefined') {
       gsap.registerPlugin(ScrollTrigger);
     }
 
     applyLanguage(currentLang);
+    initStudioJournal();
     initScrollReveals();
     initMicroAnimations();
     runIntroPreloader();

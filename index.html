@@ -24,11 +24,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@400;500&family=Great+Vibes&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="./styles.css?v=50" />
+  <link rel="stylesheet" href="./styles.css?v=56" />
 </head>
 <body class="is-intro-active">
-  <!-- Peachy Logo Radial Bloom Intro Preloader -->
-  <div class="intro-preloader" id="intro-preloader" role="status" aria-live="polite" aria-label="Loading Peachy Tiny Studio">
+  <!-- Peachy Logo Radial Bloom Intro Preloader (Click/Tap anywhere to skip) -->
+  <div class="intro-preloader" id="intro-preloader" role="button" tabindex="0" aria-live="polite" aria-label="Loading Peachy Tiny Studio — Tap anywhere to skip">
     <div class="intro-aura" id="intro-aura" aria-hidden="true"></div>
     <div class="intro-center">
       <div class="intro-logo-block">
@@ -61,7 +61,6 @@
         <span class="intro-pct mono" id="intro-pct">00%</span>
       </div>
     </div>
-    <button type="button" class="intro-skip mono liquid-glass" id="intro-skip">SKIP ↗</button>
   </div>
   <!-- Top 2px Golden Reading Progress Bar -->
   <div class="reading-progress-bar" id="reading-progress-bar" aria-hidden="true"></div>
@@ -247,6 +246,57 @@
                 />
                 <!-- Hotspots injected dynamically by JS -->
                 <div class="hotspots-layer" id="hotspots-layer"></div>
+
+                <!-- 2× Macro Magnifier Lens & Toggle -->
+                <div class="gallery-loupe is-hidden" id="gallery-loupe" aria-hidden="true">
+                  <span class="gallery-loupe-tag mono">2×</span>
+                </div>
+                <button
+                  type="button"
+                  class="gallery-loupe-toggle liquid-glass mono"
+                  id="gallery-loupe-toggle"
+                  aria-pressed="false"
+                  title="Magnify clay details 2×"
+                >
+                  <span aria-hidden="true">🔍</span>
+                  <span>2×</span>
+                </button>
+
+                <!-- 9:16 Studio Video Stage (active when selecting video thumbnail) -->
+                <div class="gallery-video-stage is-hidden" id="gallery-video-stage" aria-hidden="true">
+                  <img
+                    src="./assets/tiny-cat-poster.webp"
+                    alt=""
+                    class="gallery-video-backdrop"
+                    id="gallery-video-backdrop"
+                    aria-hidden="true"
+                  />
+                  <video
+                    id="gallery-video"
+                    class="gallery-video"
+                    playsinline
+                    preload="metadata"
+                    poster="./assets/tiny-cat-poster.webp"
+                  >
+                    <source src="./assets/tiny-cat-clip.mp4" type="video/mp4" />
+                  </video>
+                  <span class="gallery-video-badge mono liquid-glass" id="gallery-video-badge">ACTUAL HAND SCALE · 12S</span>
+                  <button
+                    type="button"
+                    class="video-sound-btn liquid-glass"
+                    id="gallery-video-sound-btn"
+                    aria-label="Toggle video sound"
+                    aria-pressed="true"
+                  >
+                    <span id="gallery-video-sound-icon" aria-hidden="true">🔊</span>
+                  </button>
+                  <div class="video-replay-overlay is-hidden" id="gallery-video-replay">
+                    <button type="button" class="video-replay-btn liquid-glass" id="gallery-video-replay-btn">
+                      <span class="replay-icon" aria-hidden="true">↻</span>
+                      <span id="gallery-video-replay-text">Watch Again</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <!-- Active Hotspot Detail Card (anchored near active pin on desktop, below stage on mobile) -->
@@ -631,6 +681,29 @@
       </div>
     </section>
 
+    <!-- Studio Journal: Mini Photo & Video Micro-Blog (Powered by /admin + Vercel Blob) -->
+    <section class="journal-section" id="journal">
+      <div class="container">
+        <div class="journal-header">
+          <div>
+            <p class="section-kicker mono" id="journal-kicker">STUDIO JOURNAL · MINI BLOG</p>
+            <h2 class="section-title" id="journal-title">Little notes from <em class="serif-it glow-accent">Giang’s</em> desk.</h2>
+          </div>
+          <div class="journal-filters liquid-glass" role="tablist" aria-label="Filter journal posts">
+            <button type="button" class="journal-filter-btn is-active" data-filter="all" role="tab" aria-selected="true" id="jf-all">All</button>
+            <button type="button" class="journal-filter-btn" data-filter="image" role="tab" aria-selected="false" id="jf-image">Photos</button>
+            <button type="button" class="journal-filter-btn" data-filter="video" role="tab" aria-selected="false" id="jf-video">Videos</button>
+          </div>
+        </div>
+
+        <div class="journal-grid" id="journal-grid" aria-live="polite"></div>
+
+        <div class="journal-actions is-hidden" id="journal-more-wrap">
+          <button type="button" class="btn btn-outline btn-sm" id="journal-more-btn">Load More Notes ↓</button>
+        </div>
+      </div>
+    </section>
+
     <!-- Section 9: Upcoming Story — The Gentle White Dragon -->
     <section class="waitlist-section" id="waitlist">
       <div class="container">
@@ -806,7 +879,6 @@
         <span class="brand-name"><span class="brand-word-peachy">Peachy</span> <em class="brand-word-sub serif-it">Tiny Studio</em></span>
       </div>
       <p class="footer-note mono">HANDCRAFTED WITH LOVE IN VIETNAM · WORLDWIDE SHIPPING · © 2026</p>
-      <a href="#top" class="back-top mono">BACK TO TOP ↑</a>
     </div>
   </footer>
 
@@ -872,6 +944,21 @@
     </div>
   </dialog>
 
+  <!-- Studio Journal Post Reader Modal -->
+  <div class="journal-modal-overlay" id="journal-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Studio Journal post">
+    <div class="journal-modal-card">
+      <button type="button" class="journal-modal-close liquid-glass" id="close-journal-modal" aria-label="Close post">✕</button>
+      <div class="journal-modal-media" id="journal-modal-media"></div>
+      <div class="journal-modal-body">
+        <div class="journal-modal-meta mono">
+          <span class="journal-tag-pill" id="journal-modal-tag">STUDIO NOTE</span>
+          <span id="journal-modal-date">2026-11-26</span>
+        </div>
+        <p class="journal-modal-caption" id="journal-modal-caption"></p>
+      </div>
+    </div>
+  </div>
+
   <!-- Full-Screen Lightbox Image Zoom Modal -->
   <div class="lightbox-overlay" id="lightbox-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Full-screen image zoom">
     <button type="button" class="lightbox-close liquid-glass" id="close-lightbox" aria-label="Close zoom view">✕</button>
@@ -918,7 +1005,7 @@
   <!-- GSAP 3.12.5 + ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="./i18n.js?v=42" defer></script>
-  <script src="./script.js?v=46" defer></script>
+  <script src="./i18n.js?v=45" defer></script>
+  <script src="./script.js?v=51" defer></script>
 </body>
 </html>

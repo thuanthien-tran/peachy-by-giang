@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="night">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peachy Studio Journal — Admin</title>
+  <link rel="icon" type="image/png" href="./assets/peachy-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0B0F1A;
+      --surface: #141B2D;
+      --surface-2: #1B243B;
+      --ink: #F6EFE6;
+      --muted: #AAB3C9;
+      --accent: #F4B95A;
+      --accent-strong: #FFCB74;
+      --danger: #F07A7A;
+      --border: rgba(246, 239, 230, 0.13);
+      --radius-lg: 1.35rem;
+      --radius-pill: 999px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background: radial-gradient(circle at 20% 0%, #162038 0%, #0B0F1A 55%);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.55;
+      padding: 1.25rem;
+    }
+
+    .wrap {
+      width: min(940px, 100%);
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .brand img {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+    }
+
+    .brand-text {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+    }
+
+    .brand-text em {
+      font-style: italic;
+      font-weight: 500;
+      opacity: 0.9;
+    }
+
+    .topbar-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .pill-link, .pill-btn {
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--ink);
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .pill-link:hover, .pill-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .banner {
+      padding: 0.75rem 1rem;
+      border-radius: 0.95rem;
+      font-size: 0.84rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid rgba(244, 185, 90, 0.35);
+      background: rgba(244, 185, 90, 0.1);
+      color: #FFE4B0;
+    }
+
+    .banner.is-hidden, .is-hidden { display: none !important; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.65rem;
+      box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.65);
+    }
+
+    .auth-card {
+      max-width: 420px;
+      margin: 4rem auto;
+      text-align: center;
+    }
+
+    .kicker {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+
+    h1, h2 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 500;
+      line-height: 1.15;
+    }
+
+    .auth-card h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .auth-card p { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.35rem; }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+
+    .field label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.78rem 0.95rem;
+      border-radius: 0.85rem;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.94rem;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+    }
+
+    .dropzone {
+      position: relative;
+      border: 1.5px dashed rgba(244, 185, 90, 0.45);
+      border-radius: 1rem;
+      padding: 1.4rem 1rem;
+      text-align: center;
+      background: rgba(244, 185, 90, 0.04);
+      cursor: pointer;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+      margin-bottom: 1rem;
+    }
+
+    .dropzone:hover, .dropzone.is-dragover {
+      border-color: var(--accent);
+      background: rgba(244, 185, 90, 0.1);
+    }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .dropzone-title {
+      font-weight: 600;
+      font-size: 0.92rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .dropzone-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .preview-box {
+      margin-bottom: 1rem;
+      border-radius: 0.95rem;
+      overflow: hidden;
+      background: #070A13;
+      border: 1px solid var(--border);
+      max-height: 290px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .preview-box img, .preview-box video {
+      width: 100%;
+      max-height: 290px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 0.85rem 1.25rem;
+      border: none;
+      border-radius: var(--radius-pill);
+      background: var(--accent);
+      color: #16100C;
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+    }
+
+    .btn-primary:hover { background: var(--accent-strong); transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .status-msg {
+      margin-top: 0.75rem;
+      font-size: 0.84rem;
+      min-height: 1.25rem;
+      color: var(--accent);
+    }
+
+    .status-msg.is-error { color: var(--danger); }
+
+    .posts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    .post-item {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      gap: 0.85rem;
+      align-items: center;
+      padding: 0.65rem;
+      border-radius: 0.95rem;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .post-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 0.65rem;
+      overflow: hidden;
+      background: #070A13;
+      position: relative;
+    }
+
+    .post-thumb img, .post-thumb video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .post-thumb-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 0.6rem;
+      padding: 1px 5px;
+      border-radius: 99px;
+      background: rgba(11, 15, 26, 0.82);
+      color: var(--accent);
+    }
+
+    .post-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.64rem;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .post-cap {
+      font-size: 0.84rem;
+      color: var(--ink);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .btn-del {
+      padding: 0.36rem 0.68rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(240, 122, 122, 0.38);
+      background: rgba(240, 122, 122, 0.08);
+      color: var(--danger);
+      font: inherit;
+      font-size: 0.74rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-del:hover {
+      background: rgba(240, 122, 122, 0.2);
+    }
+
+    .empty-note {
+      color: var(--muted);
+      font-size: 0.86rem;
+      padding: 1.25rem;
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 0.9rem;
+    }
+
+    @media (max-width: 760px) {
+      .admin-grid { grid-template-columns: 1fr; }
+      .field-row { grid-template-columns: 1fr; }
+      .card { padding: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <a href="./index.html" class="brand">
+        <img src="./assets/peachy-icon.png" alt="" />
+        <span class="brand-text">Peachy <em>Journal Admin</em></span>
+      </a>
+      <div class="topbar-actions">
+        <a href="./index.html#journal" class="pill-link">← Xem trang web</a>
+        <button type="button" class="pill-btn is-hidden" id="logout-btn">Đăng xuất</button>
+      </div>
+    </header>
+
+    <div class="banner is-hidden" id="env-banner"></div>
+
+    <!-- Login Card (shown on Vercel production) -->
+    <section class="card auth-card" id="auth-section">
+      <p class="kicker">PEACHY STUDIO · PRIVATE ACCESS</p>
+      <h1>Đăng nhập đăng bài</h1>
+      <p>Nhập mật khẩu quản trị (<code>ADMIN_PASSWORD</code>) để tải ảnh/video lên Studio Journal.</p>
+      <form id="login-form">
+        <div class="field">
+          <label for="admin-pass-input">Mật khẩu quản trị</label>
+          <input type="password" id="admin-pass-input" required placeholder="Nhập mật khẩu..." autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-primary" id="login-btn">Vào trang đăng bài ✦</button>
+        <p class="status-msg" id="login-status" role="status"></p>
+      </form>
+    </section>
+
+    <!-- Main Admin Dashboard -->
+    <main class="admin-grid is-hidden" id="admin-main">
+      <!-- Left: Create New Journal Post -->
+      <section class="card">
+        <p class="kicker">NEW ENTRY</p>
+        <h2 style="font-size: 1.75rem; margin-bottom: 1rem;">Đăng bài viết ngắn mới</h2>
+
+        <form id="post-form">
+          <div class="dropzone" id="media-dropzone">
+            <input type="file" id="media-file" accept="image/*,video/mp4,video/quicktime,video/webm" required />
+            <div class="dropzone-title">📸 Chọn ảnh hoặc video từ máy / điện thoại</div>
+            <div class="dropzone-sub" id="file-info">Hỗ trợ JPG, PNG, WebP, MP4, MOV (tối đa 50 MB)</div>
+          </div>
+
+          <div class="preview-box is-hidden" id="media-preview"></div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="post-tag">Nhãn chủ đề</label>
+              <select id="post-tag">
+                <option value="Behind the Clay">Behind the Clay</option>
+                <option value="Meet the Piece">Meet the Piece</option>
+                <option value="Studio Note">Studio Note</option>
+                <option value="Work in Progress">Work in Progress</option>
+                <option value="Packing & Shipping">Packing & Shipping</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="post-date">Ngày đăng</label>
+              <input type="date" id="post-date" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="caption-vi">Caption Tiếng Việt *</label>
+            <textarea id="caption-vi" rows="3" required placeholder="Chia sẻ đôi dòng về tác phẩm hoặc góc bàn hôm nay..."></textarea>
+          </div>
+
+          <div class="field">
+            <label for="caption-en">Caption English (tùy chọn)</label>
+            <textarea id="caption-en" rows="2" placeholder="Để trống nếu muốn dùng chung caption phía trên..."></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary" id="publish-btn">Đăng lên Studio Journal ✦</button>
+          <p class="status-msg" id="publish-status" role="status"></p>
+        </form>
+      </section>
+
+      <!-- Right: Published Posts List -->
+      <section class="card">
+        <p class="kicker">PUBLISHED NOTES</p>
+        <h2 style="font-size: 1.75rem;">Các bài đã đăng</h2>
+        <div class="posts-list" id="posts-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    const authSection = document.getElementById('auth-section');
+    const adminMain = document.getElementById('admin-main');
+    const envBanner = document.getElementById('env-banner');
+    const logoutBtn = document.getElementById('logout-btn');
+    const loginForm = document.getElementById('login-form');
+    const passInput = document.getElementById('admin-pass-input');
+    const loginStatus = document.getElementById('login-status');
+
+    const postForm = document.getElementById('post-form');
+    const fileInput = document.getElementById('media-file');
+    const fileInfo = document.getElementById('file-info');
+    const previewBox = document.getElementById('media-preview');
+    const dropzone = document.getElementById('media-dropzone');
+    const tagInput = document.getElementById('post-tag');
+    const dateInput = document.getElementById('post-date');
+    const capViInput = document.getElementById('caption-vi');
+    const capEnInput = document.getElementById('caption-en');
+    const publishBtn = document.getElementById('publish-btn');
+    const publishStatus = document.getElementById('publish-status');
+    const postsList = document.getElementById('posts-list');
+
+    dateInput.value = new Date().toISOString().slice(0, 10);
+
+    let apiAvailable = false;
+    let adminPassword = '';
+    let selectedFile = null;
+    let previewObjectUrl = null;
+
+    function setStatus(el, msg, isError = false) {
+      el.textContent = msg;
+      el.classList.toggle('is-error', isError);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function getLocalPosts() {
+      try {
+        const raw = localStorage.getItem('peachy-local-journal');
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function saveLocalPosts(posts) {
+      localStorage.setItem('peachy-local-journal', JSON.stringify(posts));
+    }
+
+    function renderPosts(posts) {
+      if (!posts || !posts.length) {
+        postsList.innerHTML = '<div class="empty-note">Chưa có bài đăng nào. Hãy tải ảnh hoặc video đầu tiên ở khung bên trái nhé!</div>';
+        return;
+      }
+
+      postsList.innerHTML = '';
+      posts.forEach((post) => {
+        const row = document.createElement('div');
+        row.className = 'post-item';
+        const mediaHtml = post.mediaType === 'video'
+          ? `<video src="${escapeHtml(post.mediaUrl)}#t=0.2" muted playsinline preload="metadata"></video><span class="post-thumb-badge">▶</span>`
+          : `<img src="${escapeHtml(post.mediaUrl)}" alt="" loading="lazy" />`;
+
+        row.innerHTML = `
+          <div class="post-thumb">${mediaHtml}</div>
+          <div>
+            <div class="post-meta">${escapeHtml(post.tag || 'Studio Note')} · ${escapeHtml(post.date || '')}</div>
+            <div class="post-cap">${escapeHtml(post.captionVi || post.captionEn || '')}</div>
+          </div>
+          <button type="button" class="btn-del" data-id="${escapeHtml(post.id)}">Xóa</button>
+        `;
+
+        row.querySelector('.btn-del').addEventListener('click', () => deletePost(post.id));
+        postsList.appendChild(row);
+      });
+    }
+
+    async function loadPosts() {
+      if (!apiAvailable) {
+        renderPosts(getLocalPosts());
+        return;
+      }
+      try {
+        const res = await fetch('/api/journal', { cache: 'no-store' });
+        const data = await res.json();
+        renderPosts(data.posts || []);
+      } catch (_) {
+        renderPosts([]);
+      }
+    }
+
+    async function deletePost(id) {
+      if (!confirm('Xóa bài viết này khỏi Studio Journal?')) return;
+      if (!apiAvailable) {
+        const updated = getLocalPosts().filter((p) => p.id !== id);
+        saveLocalPosts(updated);
+        renderPosts(updated);
+        setStatus(publishStatus, 'Đã xóa bài viết (Local Preview).');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/journal?id=${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          headers: { 'x-admin-password': adminPassword },
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Delete failed');
+        renderPosts(data.posts || []);
+        setStatus(publishStatus, 'Đã xóa bài viết thành công.');
+      } catch (err) {
+        setStatus(publishStatus, err.message, true);
+      }
+    }
+
+    function openDashboard() {
+      authSection.classList.add('is-hidden');
+      adminMain.classList.remove('is-hidden');
+      if (apiAvailable) logoutBtn.classList.remove('is-hidden');
+      loadPosts();
+    }
+
+    async function verifyAndLogin(password) {
+      setStatus(loginStatus, 'Đang kiểm tra mật khẩu...');
+      try {
+        const res = await fetch('/api/journal?action=verify', {
+          method: 'POST',
+          headers: { 'x-admin-password': password },
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error || 'Sai mật khẩu quản trị.');
+        }
+        adminPassword = password;
+        try { sessionStorage.setItem('peachy-admin-pass', password); } catch (_) {}
+        setStatus(loginStatus, '');
+        if (!data.blobConfigured) {
+          envBanner.innerHTML = '⚠️ <strong>Chưa gắn Vercel Blob Storage:</strong> Hãy vào Vercel Dashboard → Storage → Create Blob Store và kết nối với dự án để bật lưu ảnh/video.';
+          envBanner.classList.remove('is-hidden');
+        }
+        openDashboard();
+      } catch (err) {
+        setStatus(loginStatus, err.message, true);
+      }
+    }
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      verifyAndLogin(passInput.value.trim());
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      adminPassword = '';
+      try { sessionStorage.removeItem('peachy-admin-pass'); } catch (_) {}
+      adminMain.classList.add('is-hidden');
+      logoutBtn.classList.add('is-hidden');
+      authSection.classList.remove('is-hidden');
+      passInput.value = '';
+    });
+
+    function handleFileChange(file) {
+      selectedFile = file || null;
+      if (previewObjectUrl) {
+        URL.revokeObjectURL(previewObjectUrl);
+        previewObjectUrl = null;
+      }
+      if (!selectedFile) {
+        previewBox.classList.add('is-hidden');
+        previewBox.innerHTML = '';
+        fileInfo.textContent = 'Hỗ trợ JPG, PNG, WebP, MP4, MOV (tối đa 50 MB)';
+        return;
+      }
+
+      const mb = (selectedFile.size / (1024 * 1024)).toFixed(2);
+      fileInfo.textContent = `${selectedFile.name} (${mb} MB)`;
+      previewObjectUrl = URL.createObjectURL(selectedFile);
+      const isVideo = selectedFile.type.startsWith('video/');
+      previewBox.innerHTML = isVideo
+        ? `<video src="${previewObjectUrl}" controls playsinline muted></video>`
+        : `<img src="${previewObjectUrl}" alt="Preview" />`;
+      previewBox.classList.remove('is-hidden');
+    }
+
+    fileInput.addEventListener('change', (e) => handleFileChange(e.target.files[0]));
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('is-dragover'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('is-dragover'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('is-dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        fileInput.files = e.dataTransfer.files;
+        handleFileChange(e.dataTransfer.files[0]);
+      }
+    });
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Không thể đọc tệp cục bộ.'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    postForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!selectedFile) {
+        setStatus(publishStatus, 'Vui lòng chọn 1 hình ảnh hoặc video.', true);
+        return;
+      }
+
+      const isVideo = selectedFile.type.startsWith('video/');
+      publishBtn.disabled = true;
+
+      try {
+        if (!apiAvailable) {
+          // Local static preview fallback using localStorage
+          if (selectedFile.size > 3.5 * 1024 * 1024) {
+            throw new Error('Ở chế độ xem thử Local, chỉ hỗ trợ tệp dưới 3.5 MB (lên Vercel Blob hỗ trợ đến 50 MB).');
+          }
+          setStatus(publishStatus, 'Đang lưu bài xem thử cục bộ...');
+          const dataUrl = await fileToDataUrl(selectedFile);
+          const localPost = {
+            id: `local_${Date.now()}`,
+            mediaUrl: dataUrl,
+            mediaType: isVideo ? 'video' : 'image',
+            captionVi: capViInput.value.trim(),
+            captionEn: capEnInput.value.trim() || capViInput.value.trim(),
+            tag: tagInput.value,
+            date: dateInput.value,
+          };
+          const updated = [localPost, ...getLocalPosts()];
+          saveLocalPosts(updated);
+          renderPosts(updated);
+          postForm.reset();
+          dateInput.value = new Date().toISOString().slice(0, 10);
+          handleFileChange(null);
+          setStatus(publishStatus, '✦ Đã đăng bản xem thử Local! Mở lại trang chủ để xem ngay.');
+          return;
+        }
+
+        // Production Vercel Blob Direct Client Upload (supports up to 50 MB)
+        setStatus(publishStatus, 'Đang tải tệp lên Vercel Blob...');
+        const { upload } = await import('https://esm.sh/@vercel/blob@2/client');
+        const safeName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const blob = await upload(`journal/media/${Date.now()}-${safeName}`, selectedFile, {
+          access: 'public',
+          handleUploadUrl: '/api/journal-upload',
+          clientPayload: JSON.stringify({ password: adminPassword }),
+        });
+
+        setStatus(publishStatus, 'Đang lưu bài viết vào Studio Journal...');
+        const res = await fetch('/api/journal', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-password': adminPassword,
+          },
+          body: JSON.stringify({
+            mediaUrl: blob.url,
+            mediaType: isVideo ? 'video' : 'image',
+            captionVi: capViInput.value.trim(),
+            captionEn: capEnInput.value.trim(),
+            tag: tagInput.value,
+            date: dateInput.value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Không thể lưu bài viết.');
+
+        renderPosts(data.posts || []);
+        postForm.reset();
+        dateInput.value = new Date().toISOString().slice(0, 10);
+        handleFileChange(null);
+        setStatus(publishStatus, '✦ Đã đăng bài thành công lên Peachy Studio Journal!');
+      } catch (err) {
+        setStatus(publishStatus, err.message || 'Có lỗi xảy ra khi đăng bài.', true);
+      } finally {
+        publishBtn.disabled = false;
+      }
+    });
+
+    // Startup: probe /api/journal to distinguish Vercel runtime vs local static preview
+    (async function boot() {
+      try {
+        const probe = await fetch('/api/journal', { cache: 'no-store' });
+        const ct = probe.headers.get('content-type') || '';
+        if (probe.ok && ct.includes('application/json')) {
+          apiAvailable = true;
+          const savedPass = sessionStorage.getItem('peachy-admin-pass');
+          if (savedPass) {
+            verifyAndLogin(savedPass);
+          }
+          return;
+        }
+      } catch (_) {}
+
+      // Local static server mode (python -m http.server)
+      apiAvailable = false;
+      envBanner.innerHTML = '🧪 <strong>Chế độ xem thử nội bộ (Local):</strong> Bạn có thể thử chọn ảnh & đăng bài xem ngay trên máy. Khi đẩy lên Vercel + gắn <strong>Vercel Blob</strong> và biến <code>ADMIN_PASSWORD</code>, trang này sẽ tự kích hoạt đăng nhập mật khẩu và lưu cloud thật (hỗ trợ video đến 50 MB).';
+      envBanner.classList.remove('is-hidden');
+      openDashboard();
+    })();
+  </script>
+</body>
+</html>
